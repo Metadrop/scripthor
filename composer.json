@@ -1,0 +1,21 @@
+{
+    "name": "metadrop/scriptor",
+    "description": "Swiss knife of scripts for speed up the development on drupal projects.",
+    "type": "project",
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "dlopez-akalam",
+            "role": "Developer"
+        },
+	{
+	    "name": "rsanzante",
+	    "role": "Tech lead"
+	}
+    ],
+    "require": {
+        "drush/drush": "^9.0.0-beta8"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
