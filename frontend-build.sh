@@ -12,6 +12,6 @@ then
   exit 1
 fi
 
-echo "Running ./scripts/frontend-build dev"
+echo "Running ./scripts/frontend-build.sh dev"
 npm install
 npm run $TASK
