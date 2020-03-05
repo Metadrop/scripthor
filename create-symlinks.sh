@@ -9,7 +9,7 @@ FILES=(
 )
 DIR="./scripts"
 
-if [ ! -d $DIR ]
+if [ ! -d $DIR ]; then
   mkdir "$DIR"
 fi
 
