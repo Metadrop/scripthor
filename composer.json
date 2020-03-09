@@ -14,7 +14,7 @@
 	}
     ],
     "require": {
-        "drush/drush": "^9.0.0-beta8"
+        "drush/drush": "^9.0|^10.0"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
