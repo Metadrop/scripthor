@@ -1,25 +1,29 @@
 {
-    "name": "metadrop/scripthor",
+    "name": "keopx/scripthor",
     "description": "Swiss knife of scripts for speed up the development on drupal projects.",
-    "type": "project",
     "license": "GPL-2.0+",
     "authors": [
         {
             "name": "dlopez-akalam",
             "role": "Developer"
         },
-	{
-	    "name": "rsanzante",
-	    "role": "Tech lead"
-	}
+        {
+            "name": "rsanzante",
+            "role": "Tech lead"
+        }
     ],
     "require": {
         "drush/drush": "^9.0|^10.0"
     },
+    "autoload": {
+        "psr-4": {
+            "Metadrop\\": "src/"
+        }
+    },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "scripts": {
-      "post-update-cmd":  "./vendor/metadrop/scripthor/create-symlinks.sh",
-      "post-install-cmd": "./vendor/metadrop/scripthor/create-symlinks.sh"
+      "post-update-cmd":  "Metadrop\\CreateSymlinks::createSymlinks",
+      "post-install-cmd": "Metadrop\\CreateSymlinks::createSymlinks"
     }
 }
