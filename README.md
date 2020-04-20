@@ -16,6 +16,8 @@ Typically, the scaffold operations run automatically as needed, e.g. after
 to scaffold a project once the configuration is set up in the project
 composer.json file, as described below. To scripthor files directly, run:
 
+### Scripthor create symlinks
+
 ```
-composer metadrop:scripthor
+composer scripthor:create-symlinks
 ```
