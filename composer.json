@@ -1,25 +1,32 @@
 {
     "name": "metadrop/scripthor",
     "description": "Swiss knife of scripts for speed up the development on drupal projects.",
-    "type": "project",
+    "type": "composer-plugin",
     "license": "GPL-2.0+",
     "authors": [
         {
             "name": "dlopez-akalam",
             "role": "Developer"
         },
-	{
-	    "name": "rsanzante",
-	    "role": "Tech lead"
-	}
+        {
+            "name": "rsanzante",
+            "role": "Tech lead"
+        }
     ],
     "require": {
-        "drush/drush": "^9.0|^10.0"
+        "composer-plugin-api": "^1.1",
+        "composer/composer": "^1.8@stable",
+        "drush/drush": "^9.0|^10.0",
+        "php": ">=7.0.8"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
-    "scripts": {
-      "post-update-cmd":  "./vendor/metadrop/scripthor/create-symlinks.sh",
-      "post-install-cmd": "./vendor/metadrop/scripthor/create-symlinks.sh"
+    "autoload": {
+        "psr-4": {
+            "Metadrop\\": "src"
+        }
+    },
+    "extra": {
+        "class": "Metadrop\\MetadropPlugin"
     }
 }
