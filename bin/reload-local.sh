@@ -91,10 +91,10 @@ EOF
 #######################################
 function create_database() {
   # Get connection credentials from .env file.
-  MYSQL_ROOT_PASS=$(egrep DB_ROOT_PASSWORD ${PROJECT_ROOT}/.env | sed s/DB_ROOT_PASSWORD=//)
-  MYSQL_HOST=$(egrep DB_HOST ${PROJECT_ROOT}/.env | sed s/DB_HOST=//)
-  MYSQL_DB_NAME=$(egrep DB_NAME ${PROJECT_ROOT}/.env | sed s/DB_NAME=//)
-  MYSQL_DB_USER=$(egrep DB_USER ${PROJECT_ROOT}/.env | sed s/DB_USER=//)
+  MYSQL_ROOT_PASS=$(egrep DB_ROOT_PASSWORD[^a-zA-Z_] ${PROJECT_ROOT}/.env | sed s/DB_ROOT_PASSWORD=//)
+  MYSQL_HOST=$(egrep DB_HOST[^a-zA-Z_] ${PROJECT_ROOT}/.env | sed s/DB_HOST=//)
+  MYSQL_DB_NAME=$(egrep DB_NAME[^a-zA-Z_] ${PROJECT_ROOT}/.env | sed s/DB_NAME=//)
+  MYSQL_DB_USER=$(egrep DB_USER[^a-zA-Z_] ${PROJECT_ROOT}/.env | sed s/DB_USER=//)
 
   if [ $SITE != $DEFAULT_SITE ]
   then
