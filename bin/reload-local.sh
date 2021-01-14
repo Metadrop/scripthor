@@ -247,11 +247,11 @@ then
 
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} cim sync -y
 
+  $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} deploy:hook -y
+
   $DOCKER_EXEC_NPM sh ${DOCKER_PROJECT_ROOT}/scripts/frontend-build.sh ${NPM_RUN_COMMAND}
 
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} cr
-
-  $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} deploy:hook
 
   # Show one-time login link.
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} uli
