@@ -251,6 +251,8 @@ then
 
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} cr
 
+  $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} deploy:hook
+
   # Show one-time login link.
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} uli
 
