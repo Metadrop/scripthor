@@ -17,6 +17,7 @@ use Composer\Plugin\CommandEvent;
 class Handler {
 
   const DIR = './scripts';
+  const ENV_FILE = './.env';
 
   const TARGET_DIR = '../vendor/metadrop/scripthor/bin/';
 
@@ -92,12 +93,8 @@ class Handler {
 
   /**
    * Create script symbolic links.
-   *
-   * @return bool
-   *   Exist or not directory
    */
   protected function createScriptLink() {
-    $link = self::DIR . '/';
 
     foreach (self::SIMLINK_FILES as $file) {
       $script = self::DIR . '/' . $file;
@@ -110,4 +107,16 @@ class Handler {
       }
     }
   }
+
+  /**
+   * Assistant on create project.
+   */
+  public function createProjectAssistant() {
+    $project_name = $this->io->ask('Please enter the project name', dirname(getcwd()));
+    $this->io->write('Setting up .env file');
+    $env = file_get_contents(self::ENV_FILE . '.example');
+    $env = str_replace('example', $project_name, $env);
+    file_put_contents(self::ENV_FILE, $env);
+  }
+
 }

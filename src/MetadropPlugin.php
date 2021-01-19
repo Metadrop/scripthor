@@ -37,6 +37,20 @@ class MetadropPlugin implements PluginInterface, EventSubscriberInterface, Capab
   /**
    * {@inheritdoc}
    */
+  public function deactivate(Composer $composer, IOInterface $io) {
+    // Unneeded method but required by the interface.
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function uninstall(Composer $composer, IOInterface $io) {
+    // Unneeded method but required by the interface.
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getCapabilities() {
     return ['Composer\Plugin\Capability\CommandProvider' => 'Metadrop\CommandProvider'];
   }
@@ -48,6 +62,7 @@ class MetadropPlugin implements PluginInterface, EventSubscriberInterface, Capab
     return [
       ScriptEvents::POST_UPDATE_CMD => 'scripthorInstaller',
       ScriptEvents::POST_INSTALL_CMD => 'scripthorInstaller',
+      ScriptEvents::POST_CREATE_PROJECT_CMD => 'onCreateProject'
     ];
   }
 
@@ -62,6 +77,17 @@ class MetadropPlugin implements PluginInterface, EventSubscriberInterface, Capab
   public function scripthorInstaller(Event $event) {
     $this->io->write('scripthorInstaller: ' . $event->getName());
     $this->handler->createSymlinks();
+  }
+
+  /**
+   * Create project callback.
+   *
+   * @param \Composer\Script\Event $event
+   *   The composer event.
+   */
+  public function onCreateProject(Event $event) {
+    $this->io->write('scripthorInstaller: ' . $event->getName());
+    $this->handler->createProjectAssistant();
   }
 
 }
