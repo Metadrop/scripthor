@@ -121,7 +121,8 @@ class Handler {
    * Helper method to setup env file.
    */
   protected function setUpEnvFile() {
-    $project_name = $this->io->ask('Please enter the project name: ', dirname(getcwd()));
+    $current_dir = dirname(getcwd());
+    $project_name = $this->io->ask('Please enter the project name (default to ' . $current_dir . '): ', $current_dir);
     $this->io->write('Setting up .env file');
     $env = file_get_contents(self::ENV_FILE . '.example');
     $env = str_replace('example', $project_name, $env);
