@@ -112,25 +112,31 @@ class Handler {
    * Assistant on create project.
    */
   public function createProjectAssistant() {
-    $this->setUpEnvFile();
+    $project_name = $this->setUpEnvFile();
     $this->setUpGit();
     $this->startDocker();
+    $this->installDrupal($project_name);
+    $this->createSubTheme($project_name);
   }
 
   /**
    * Helper method to setup env file.
    */
   protected function setUpEnvFile() {
-    $current_dir = dirname(getcwd());
+    $current_dir = basename(getcwd());
     $project_name = $this->io->ask('Please enter the project name (default to ' . $current_dir . '): ', $current_dir);
     $this->io->write('Setting up .env file');
     $env = file_get_contents(self::ENV_FILE . '.example');
     $env = str_replace('example', $project_name, $env);
     file_put_contents(self::ENV_FILE, $env);
+
+    copy('./docker-compose.override.yml.dist', './docker-compose.override.yml');
+
+    return $project_name;
   }
 
   /**
-   * Helper method to setup git.
+   * Setup git.
    */
   protected function setUpGit() {
     if ($this->io->askConfirmation('Do you want to initialize a git repository for your new project? (Y/n)')) {
@@ -139,11 +145,34 @@ class Handler {
   }
 
   /**
-   * Helper method to start docker.
+   * Start docker.
    */
   protected function startDocker() {
     if ($this->io->askConfirmation('Do you want to start docker (before answering yes ensure other docker containers are down)? (Y/n)')) {
       exec('docker-compose up -d');
+    }
+  }
+
+  /**
+   * Install Drupal with the standard profile.
+   */
+  protected function installDrupal($project_name) {
+    if ($this->io->askConfirmation('Do you want to install Drupal? (Y/n)')) {
+      copy('./web/sites/default/example.settings.local.php', './web/sites/default/settings.local.php');
+      $drush_yml = file_get_contents('./web/sites/default/example.local.drush.yml');
+      $drush_yml = str_replace('example', $project_name, $drush_yml);
+      file_put_contents('./web/sites/default/local.drush.yml', $drush_yml);
+      exec('docker-compose exec php drush si');
+    }
+  }
+
+  /**
+   * Create new sub-theme.
+   */
+  protected function createSubTheme(string $default_theme_name = '') {
+    if ($this->io->askConfirmation('Do you want to create a Radix sub-theme? (Y/n)')) {
+      $theme_name = $this->io->ask('Please enter the theme name (default to ' . $default_theme_name . '): ', $default_theme_name);
+      exec('docker-compose exec php drush --include=themes/contrib/radix radix:create ' . $theme_name . '"');
     }
   }
 
