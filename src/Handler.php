@@ -112,11 +112,38 @@ class Handler {
    * Assistant on create project.
    */
   public function createProjectAssistant() {
-    $project_name = $this->io->ask('Please enter the project name', dirname(getcwd()));
+    $this->setUpEnvFile();
+    $this->setUpGit();
+    $this->startDocker();
+  }
+
+  /**
+   * Helper method to setup env file.
+   */
+  protected function setUpEnvFile() {
+    $project_name = $this->io->ask('Please enter the project name: ', dirname(getcwd()));
     $this->io->write('Setting up .env file');
     $env = file_get_contents(self::ENV_FILE . '.example');
     $env = str_replace('example', $project_name, $env);
     file_put_contents(self::ENV_FILE, $env);
+  }
+
+  /**
+   * Helper method to setup git.
+   */
+  protected function setUpGit() {
+    if ($this->io->askConfirmation('Do you want to initialize a git repository for your new project? (Y/n)')) {
+      exec('git init');
+    }
+  }
+
+  /**
+   * Helper method to start docker.
+   */
+  protected function startDocker() {
+    if ($this->io->askConfirmation('Do you want to start docker (before answering yes ensure other docker containers are down)? (Y/n)')) {
+      exec('docker-compose up -d');
+    }
   }
 
 }
