@@ -131,8 +131,13 @@ class Handler {
     $this->io->write('Setting up .env file');
     $env = file_get_contents(self::ENV_FILE . '.example');
     $env = str_replace('example', $project_name, $env);
+
+    $theme_name = str_replace('-', '_', $project_name);
+    $env = str_replace('THEME_PATH=/var/www/html/web/themes/custom/' . $project_name, 'THEME_PATH=/var/www/html/web/themes/custom/' . $theme_name, $env);
     file_put_contents(self::ENV_FILE, $env);
 
+    mkdir('./web/themes/custom');
+    mkdir('./web/themes/custom/' . $theme_name);
     copy('./docker-compose.override.yml.dist', './docker-compose.override.yml');
 
     return $project_name;
