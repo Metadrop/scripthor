@@ -136,8 +136,16 @@ class Handler {
     $env = str_replace('THEME_PATH=/var/www/html/web/themes/custom/' . $project_name, 'THEME_PATH=/var/www/html/web/themes/custom/' . $theme_name, $env);
     file_put_contents(self::ENV_FILE, $env);
 
-    mkdir('./web/themes/custom');
-    mkdir('./web/themes/custom/' . $theme_name);
+    $theme_custom_dir = './web/themes/custom';
+    if (!is_dir($theme_custom_dir)) {
+      mkdir($theme_custom_dir);
+    }
+
+    $theme_dir = $theme_custom_dir . '/' . $theme_name;
+    if (!is_dir($theme_dir)) {
+      mkdir($theme_dir);
+    }
+
     copy('./docker-compose.override.yml.dist', './docker-compose.override.yml');
 
     return $project_name;
