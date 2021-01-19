@@ -116,7 +116,10 @@ class Handler {
     $this->setUpGit();
     $this->startDocker();
     $this->installDrupal($project_name);
-    $this->createSubTheme($project_name);
+    $this->createSubTheme(str_replace('-', '_', $project_name));
+    $this->io->notice('CONGRATULATIONS!' . "\n". 'Your new project is up and running on the following url: http://' . $project_name . '.docker.localhost:8000');
+    $this->io->write('Click on the following link to start building your site:');
+    exec('docker-compose exec php drush uli');
   }
 
   /**
@@ -169,10 +172,14 @@ class Handler {
   /**
    * Create new sub-theme.
    */
-  protected function createSubTheme(string $default_theme_name = '') {
+  protected function createSubTheme(string $default_theme_name) {
     if ($this->io->askConfirmation('Do you want to create a Radix sub-theme? (Y/n)')) {
-      $theme_name = $this->io->ask('Please enter the theme name (default to ' . $default_theme_name . '): ', $default_theme_name);
-      exec('docker-compose exec php drush --include=themes/contrib/radix radix:create ' . $theme_name . '"');
+      //$theme_name = $this->io->ask('Please enter the theme name (default to ' . $default_theme_name . '): ', $default_theme_name);
+      $theme_name = $default_theme_name;
+      exec('docker-compose exec php drush --include="web/themes/contrib/radix" radix:create ' . $theme_name);
+      exec('docker-compose exec php drush en ' . $theme_name . ' -y');
+      exec('docker-compose exec php drush config-set system.theme default ' . $theme_name . ' -y');
+      exec('make frontend dev');
     }
   }
 
