@@ -116,10 +116,25 @@ class Handler {
     $this->setUpGit();
     $this->startDocker();
     $this->installDrupal($project_name);
+    $this->createDirectories();
     $this->createSubTheme(str_replace('-', '_', $project_name));
     $this->io->notice('CONGRATULATIONS!' . "\n". 'Your new project is up and running on the following url: http://' . $project_name . '.docker.localhost:8000');
     $this->io->write('Click on the following link to start building your site:');
     system('docker-compose exec php drush uli');
+  }
+
+  /**
+  * Create needed directories.
+  */
+  protected function createDirectories() {
+    $behat_dir = './web/sites/default/files/behat';
+    if (!is_dir($behat_dir)) {
+      mkdir($behat_dir);
+    }
+    $behat_dir_errors = $behat_dir . '/errors';
+    if (!is_dir($behat_dir_errors)) {
+      mkdir($behat_dir_errors);
+    }
   }
 
   /**
@@ -141,11 +156,6 @@ class Handler {
       mkdir($theme_custom_dir);
     }
 
-    $theme_dir = $theme_custom_dir . '/' . $theme_name;
-    if (!is_dir($theme_dir)) {
-      mkdir($theme_dir);
-    }
-
     copy('./docker-compose.override.yml.dist', './docker-compose.override.yml');
 
     return $project_name;
@@ -156,8 +166,8 @@ class Handler {
    */
   protected function setUpGit() {
     if ($this->io->askConfirmation('Do you want to initialize a git repository for your new project? (Y/n)')) {
-      system('git init -b dev');
-
+      system('git init');
+      system('git checkuot -b dev');
     }
   }
 
@@ -190,8 +200,9 @@ class Handler {
     if ($this->io->askConfirmation('Do you want to create a Radix sub-theme? (Y/n)')) {
       //$theme_name = $this->io->ask('Please enter the theme name (default to ' . $default_theme_name . '): ', $default_theme_name);
       $theme_name = $default_theme_name;
+      system('docker-compose exec php drush theme:enable radix');
       system('docker-compose exec php drush --include="web/themes/contrib/radix" radix:create ' . $theme_name);
-      system('docker-compose exec php drush en ' . $theme_name . ' -y');
+      system('docker-compose exec php drush theme:enable ' . $theme_name);
       system('docker-compose exec php drush config-set system.theme default ' . $theme_name . ' -y');
       system('make frontend dev');
     }
