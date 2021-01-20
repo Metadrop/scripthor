@@ -116,10 +116,25 @@ class Handler {
     $this->setUpGit();
     $this->startDocker();
     $this->installDrupal($project_name);
+    $this->createDirectories();
     $this->createSubTheme(str_replace('-', '_', $project_name));
     $this->io->notice('CONGRATULATIONS!' . "\n". 'Your new project is up and running on the following url: http://' . $project_name . '.docker.localhost:8000');
     $this->io->write('Click on the following link to start building your site:');
     system('docker-compose exec php drush uli');
+  }
+
+  /**
+  * Create needed directories.
+  */
+  protected function createDirectories() {
+    $behat_dir = './web/sites/default/files/behat';
+    if (!is_dir($behat_dir)) {
+      mkdir($behat_dir);
+    }
+    $behat_dir_errors = $behat_dir . '/errors';
+    if (!is_dir($behat_dir_errors)) {
+      mkdir($behat_dir_errors);
+    }
   }
 
   /**
@@ -187,7 +202,7 @@ class Handler {
       $theme_name = $default_theme_name;
       system('docker-compose exec php drush theme:enable radix');
       system('docker-compose exec php drush --include="web/themes/contrib/radix" radix:create ' . $theme_name);
-      system('docker-compose exec php drush theme:enable ' . $theme_name . ' -y');
+      system('docker-compose exec php drush theme:enable ' . $theme_name);
       system('docker-compose exec php drush config-set system.theme default ' . $theme_name . ' -y');
       system('make frontend dev');
     }
