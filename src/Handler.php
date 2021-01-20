@@ -201,9 +201,9 @@ class Handler {
       //$theme_name = $this->io->ask('Please enter the theme name (default to ' . $default_theme_name . '): ', $default_theme_name);
       $theme_name = $default_theme_name;
       system('docker-compose exec php drush en components');
-      system('docker-compose exec php drush theme:enable radix');
+      system('docker-compose exec php drush theme:enable radix -y');
       system('docker-compose exec php drush --include="web/themes/contrib/radix" radix:create ' . $theme_name);
-      system('docker-compose exec php drush theme:enable ' . $theme_name);
+      system('docker-compose exec php drush theme:enable ' . $theme_name . ' -y');
       system('docker-compose exec php drush config-set system.theme default ' . $theme_name . ' -y');
       system('make frontend dev');
     }
