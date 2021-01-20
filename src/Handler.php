@@ -192,6 +192,12 @@ class Handler {
       $drush_yml = file_get_contents('./web/sites/default/example.local.drush.yml');
       $drush_yml = str_replace('example', $project_name, $drush_yml);
       file_put_contents('./web/sites/default/local.drush.yml', $drush_yml);
+      $behat_yml = file_get_contents('./behat.yml');
+      $behat_yml = str_replace('example', $project_name, $behat_yml);
+      file_put_contents('./behat.yml', $behat_yml);
+      $backstop = file_get_contents('./tests/backstopjs/backstop_data/engine_scripts/cookies.json');
+      $backstop = str_replace('example', 'naranja', $backstop);
+      file_put_contents('./tests/backstopjs/backstop_data/engine_scripts/cookies.json', $backstop);
       system('docker-compose exec php drush si -y');
     }
   }
