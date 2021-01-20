@@ -198,7 +198,7 @@ class Handler {
       $backstop = file_get_contents('./tests/backstopjs/backstop_data/engine_scripts/cookies.json');
       $backstop = str_replace('example', 'naranja', $backstop);
       file_put_contents('./tests/backstopjs/backstop_data/engine_scripts/cookies.json', $backstop);
-      system('docker-compose exec php drush si -y');
+      system('docker-compose exec php drush si');
     }
   }
 
