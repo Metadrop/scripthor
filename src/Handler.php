@@ -119,7 +119,7 @@ class Handler {
     $this->installDrupal($project_name);
     $this->createDirectories();
     $this->createSubTheme(str_replace('-', '_', $project_name));
-    $this->assistantSuccess();
+    $this->assistantSuccess($project_name);
   }
 
   /**
@@ -216,7 +216,7 @@ class Handler {
   /**
    * Assistant success message.
    */
-  protected function assistantSuccess() {
+  protected function assistantSuccess($project_name) {
     $this->io->notice('CONGRATULATIONS!' . "\n". 'Your new project is up and running on the following url: http://' . $project_name . '.docker.localhost:8000');
     $this->io->write('Click on the following link to start building your site:');
     system('docker-compose exec php drush uli');
