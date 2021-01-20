@@ -202,8 +202,7 @@ class Handler {
    */
   protected function createSubTheme(string $default_theme_name) {
     if ($this->io->askConfirmation('Do you want to create a Radix sub-theme? (Y/n) ')) {
-      //$theme_name = $this->io->ask('Please enter the theme name (default to ' . $default_theme_name . '): ', $default_theme_name);
-      $theme_name = $default_theme_name;
+      $theme_name = $this->io->ask('Please enter the theme name (default to ' . $default_theme_name . '): ', $default_theme_name);
       system('docker-compose exec php drush en components');
       system('docker-compose exec php drush theme:enable radix -y');
       system('docker-compose exec php drush --include="web/themes/contrib/radix" radix:create ' . $theme_name);
@@ -217,7 +216,12 @@ class Handler {
    * Assistant success message.
    */
   protected function assistantSuccess($project_name) {
-    $this->io->notice('CONGRATULATIONS!' . "\n". 'Your new project is up and running on the following url: http://' . $project_name . '.docker.localhost:8000');
+    system('git add .');
+    system('git commit -m "Initial commit" -n');
+    $this->io->write("\n\n" . '***********************'
+      . "\n" . '    CONGRATULATIONS!'
+      . "\n". '***********************'
+      . "\n" . 'Your new project is up and running on the following url: http://' . $project_name . '.docker.localhost:8000');
     $this->io->write('Click on the following link to start building your site:');
     system('docker-compose exec php drush uli');
   }
