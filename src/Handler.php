@@ -167,7 +167,7 @@ class Handler {
   protected function setUpGit() {
     if ($this->io->askConfirmation('Do you want to initialize a git repository for your new project? (Y/n) ')) {
       system('git init');
-      system('git checkuot -b dev');
+      system('git checkout -b dev');
     }
   }
 
