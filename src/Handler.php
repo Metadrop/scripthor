@@ -115,12 +115,11 @@ class Handler {
     $project_name = $this->setUpEnvFile();
     $this->setUpGit();
     $this->startDocker();
+    $this->initGrumPhp();
     $this->installDrupal($project_name);
     $this->createDirectories();
     $this->createSubTheme(str_replace('-', '_', $project_name));
-    $this->io->notice('CONGRATULATIONS!' . "\n". 'Your new project is up and running on the following url: http://' . $project_name . '.docker.localhost:8000');
-    $this->io->write('Click on the following link to start building your site:');
-    system('docker-compose exec php drush uli');
+    $this->assistantSuccess();
   }
 
   /**
@@ -175,9 +174,14 @@ class Handler {
    * Start docker.
    */
   protected function startDocker() {
-    if ($this->io->askConfirmation('Do you want to start docker? (Y/n) ')) {
-      system('docker-compose up -d');
-    }
+    system('docker-compose up -d');
+  }
+
+  /**
+   * Enable grumphp.
+   */
+  protected function initGrumPhp() {
+    system('docker-compose exec php ./vendor/bin/grumphp git:init');
   }
 
   /**
@@ -207,6 +211,15 @@ class Handler {
       system('docker-compose exec php drush config-set system.theme default ' . $theme_name . ' -y');
       system('make frontend dev');
     }
+  }
+
+  /**
+   * Assistant success message.
+   */
+  protected function assistantSuccess() {
+    $this->io->notice('CONGRATULATIONS!' . "\n". 'Your new project is up and running on the following url: http://' . $project_name . '.docker.localhost:8000');
+    $this->io->write('Click on the following link to start building your site:');
+    system('docker-compose exec php drush uli');
   }
 
 }
