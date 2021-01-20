@@ -141,11 +141,6 @@ class Handler {
       mkdir($theme_custom_dir);
     }
 
-    $theme_dir = $theme_custom_dir . '/' . $theme_name;
-    if (!is_dir($theme_dir)) {
-      mkdir($theme_dir);
-    }
-
     copy('./docker-compose.override.yml.dist', './docker-compose.override.yml');
 
     return $project_name;
