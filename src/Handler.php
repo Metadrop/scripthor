@@ -150,11 +150,6 @@ class Handler {
     $env = str_replace('THEME_PATH=/var/www/html/web/themes/custom/' . $project_name, 'THEME_PATH=/var/www/html/web/themes/custom/' . $theme_name, $env);
     file_put_contents(self::ENV_FILE, $env);
 
-    $theme_custom_dir = './web/themes/custom';
-    if (!is_dir($theme_custom_dir)) {
-      mkdir($theme_custom_dir);
-    }
-
     copy('./docker-compose.override.yml.dist', './docker-compose.override.yml');
 
     return $project_name;
@@ -200,9 +195,8 @@ class Handler {
   /**
    * Create new sub-theme.
    */
-  protected function createSubTheme(string $default_theme_name) {
+  protected function createSubTheme(string $theme_name) {
     if ($this->io->askConfirmation('Do you want to create a Radix sub-theme? (Y/n) ')) {
-      $theme_name = $this->io->ask('Please enter the theme name (default to ' . $default_theme_name . '): ', $default_theme_name);
       system('docker-compose exec php drush en components');
       system('docker-compose exec php drush theme:enable radix -y');
       system('docker-compose exec php drush --include="web/themes/contrib/radix" radix:create ' . $theme_name);
