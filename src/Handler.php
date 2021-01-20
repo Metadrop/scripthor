@@ -113,12 +113,13 @@ class Handler {
    */
   public function createProjectAssistant() {
     $project_name = $this->setUpEnvFile();
+    $theme_name = str_replace('-', '_', $project_name);
     $this->setUpGit();
-    $this->startDocker();
+    $this->startDocker($theme_name);
     $this->initGrumPhp();
     $this->installDrupal($project_name);
     $this->createDirectories();
-    $this->createSubTheme(str_replace('-', '_', $project_name));
+    $this->createSubTheme($theme_name);
     $this->assistantSuccess($project_name);
   }
 
@@ -168,7 +169,10 @@ class Handler {
   /**
    * Start docker.
    */
-  protected function startDocker() {
+  protected function startDocker($theme_name) {
+    system('docker-compose up -d php');
+    $theme_path = '/var/www/html/web/themes/custom/' . $theme_name;
+    system('docker-compose exec php mkdir -p ' . $theme_path);
     system('docker-compose up -d');
   }
 
