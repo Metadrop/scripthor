@@ -119,7 +119,7 @@ class Handler {
     $this->createSubTheme(str_replace('-', '_', $project_name));
     $this->io->notice('CONGRATULATIONS!' . "\n". 'Your new project is up and running on the following url: http://' . $project_name . '.docker.localhost:8000');
     $this->io->write('Click on the following link to start building your site:');
-    exec('docker-compose exec php drush uli');
+    system('docker-compose exec php drush uli');
   }
 
   /**
@@ -156,7 +156,8 @@ class Handler {
    */
   protected function setUpGit() {
     if ($this->io->askConfirmation('Do you want to initialize a git repository for your new project? (Y/n)')) {
-      exec('git init');
+      system('git init -b dev');
+
     }
   }
 
@@ -165,7 +166,7 @@ class Handler {
    */
   protected function startDocker() {
     if ($this->io->askConfirmation('Do you want to start docker (before answering yes ensure other docker containers are down)? (Y/n)')) {
-      exec('docker-compose up -d');
+      system('docker-compose up -d');
     }
   }
 
@@ -178,7 +179,7 @@ class Handler {
       $drush_yml = file_get_contents('./web/sites/default/example.local.drush.yml');
       $drush_yml = str_replace('example', $project_name, $drush_yml);
       file_put_contents('./web/sites/default/local.drush.yml', $drush_yml);
-      exec('docker-compose exec php drush si');
+      system('docker-compose exec php drush si');
     }
   }
 
@@ -189,10 +190,10 @@ class Handler {
     if ($this->io->askConfirmation('Do you want to create a Radix sub-theme? (Y/n)')) {
       //$theme_name = $this->io->ask('Please enter the theme name (default to ' . $default_theme_name . '): ', $default_theme_name);
       $theme_name = $default_theme_name;
-      exec('docker-compose exec php drush --include="web/themes/contrib/radix" radix:create ' . $theme_name);
-      exec('docker-compose exec php drush en ' . $theme_name . ' -y');
-      exec('docker-compose exec php drush config-set system.theme default ' . $theme_name . ' -y');
-      exec('make frontend dev');
+      system('docker-compose exec php drush --include="web/themes/contrib/radix" radix:create ' . $theme_name);
+      system('docker-compose exec php drush en ' . $theme_name . ' -y');
+      system('docker-compose exec php drush config-set system.theme default ' . $theme_name . ' -y');
+      system('make frontend dev');
     }
   }
 

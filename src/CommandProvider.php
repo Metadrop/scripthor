@@ -15,7 +15,10 @@ class CommandProvider implements CommandProviderCapability {
    * {@inheritdoc}
    */
   public function getCommands() {
-    return [new ComposerScripthorCommand()];
+    return [
+      new ComposerScripthorCommand(),
+      new ComposerAssistantCommand(),
+    ];
   }
 
 }
