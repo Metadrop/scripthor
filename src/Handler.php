@@ -151,6 +151,14 @@ class Handler {
     $env = str_replace('THEME_PATH=/var/www/html/web/themes/custom/' . $project_name, 'THEME_PATH=/var/www/html/web/themes/custom/' . $theme_name, $env);
     file_put_contents(self::ENV_FILE, $env);
 
+    $behat_yml = file_get_contents('./behat.yml');
+    $behat_yml = str_replace('example', $project_name, $behat_yml);
+    file_put_contents('./behat.yml', $behat_yml);
+
+    $backstop = file_get_contents('./tests/backstopjs/backstop_data/engine_scripts/cookies.json');
+    $backstop = str_replace('example', $project_name, $backstop);
+    file_put_contents('./tests/backstopjs/backstop_data/engine_scripts/cookies.json', $backstop);
+
     copy('./docker-compose.override.yml.dist', './docker-compose.override.yml');
 
     return $project_name;
