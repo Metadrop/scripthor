@@ -229,7 +229,7 @@ class Handler {
     $this->io->write("\n\n" . '***********************'
       . "\n" . '    CONGRATULATIONS!'
       . "\n". '***********************'
-      . "\n" . 'Your new project is up and running on the following url: http://' . $project_name . '.docker.localhost:8000');
+      . "\n" . 'Your new project is up and running on the following url: http://' . getenv('PROJECT_BASE_URL') . ':' . getenv('CONTAINER_PORT'));
     $this->io->write('Click on the following link to start building your site:');
     system('docker-compose exec php drush uli');
   }
