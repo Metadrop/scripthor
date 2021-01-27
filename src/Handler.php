@@ -179,7 +179,7 @@ class Handler {
    * Start docker.
    */
   protected function startDocker($theme_name) {
-    system('./bin/setup-traefik-port.sh');
+    system('./scripts/setup-traefik-port.sh');
     system('docker-compose up -d php');
     $theme_path = '/var/www/html/web/themes/custom/' . $theme_name;
     system('docker-compose exec php mkdir -p ' . $theme_path);
