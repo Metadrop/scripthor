@@ -224,12 +224,13 @@ class Handler {
    * Assistant success message.
    */
   protected function assistantSuccess($project_name) {
+    $project_url = shell_exec('docker-compose port traefik 80 | cut -d: -f2');
     system('git add .');
     system('git commit -m "Initial commit" -n');
     $this->io->write("\n\n" . '***********************'
       . "\n" . '    CONGRATULATIONS!'
       . "\n". '***********************'
-      . "\n" . 'Your new project is up and running on the following url: http://' . getenv('PROJECT_BASE_URL') . ':' . getenv('CONTAINER_PORT'));
+      . "\n" . 'Your new project is up and running on the following url: http://' . $project_name . '.docker.localhost:' . getenv('CONTAINER_PORT'));
     $this->io->write('Click on the following link to start building your site:');
     system('docker-compose exec php drush uli');
   }
