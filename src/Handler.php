@@ -178,6 +178,10 @@ class Handler {
    * Start docker.
    */
   protected function startDocker($theme_name) {
+    // Star traefik to generate random port.
+    system('docker-compose up -d traefik');
+    // Setup the port on .env file.
+    system('sed -i "s/CONTAINER_PORT.*/CONTAINER_PORT\=$(docker-compose port traefik 80 | cut -d: -f2)/g" ' . self::ENV_FILE);
     system('docker-compose up -d php');
     $theme_path = '/var/www/html/web/themes/custom/' . $theme_name;
     system('docker-compose exec php mkdir -p ' . $theme_path);
