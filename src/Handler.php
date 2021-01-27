@@ -25,6 +25,7 @@ class Handler {
     'frontend-build.sh',
     'copy-content-config-entity-to-module.sh',
     'reload-local.sh',
+    'setup-traefik-port.sh',
   ];
 
   /**
