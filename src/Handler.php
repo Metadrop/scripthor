@@ -224,7 +224,7 @@ class Handler {
    * Assistant success message.
    */
   protected function assistantSuccess($project_name) {
-    $project_url = shell_exec('docker-compose port traefik 80 | cut -d: -f2');
+    $port = shell_exec('docker-compose port traefik 80 | cut -d: -f2');
     system('git add .');
     system('git commit -m "Initial commit" -n');
     $this->io->write("\n\n" . '***********************'
