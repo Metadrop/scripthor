@@ -25,6 +25,7 @@ class Handler {
     'frontend-build.sh',
     'copy-content-config-entity-to-module.sh',
     'reload-local.sh',
+    'setup-traefik-port.sh',
   ];
 
   /**
@@ -178,6 +179,7 @@ class Handler {
    * Start docker.
    */
   protected function startDocker($theme_name) {
+    system('./scripts/setup-traefik-port.sh');
     system('docker-compose up -d php');
     $theme_path = '/var/www/html/web/themes/custom/' . $theme_name;
     system('docker-compose exec php mkdir -p ' . $theme_path);
@@ -222,12 +224,13 @@ class Handler {
    * Assistant success message.
    */
   protected function assistantSuccess($project_name) {
+    $port = shell_exec('docker-compose port traefik 80 | cut -d: -f2');
     system('git add .');
     system('git commit -m "Initial commit" -n');
     $this->io->write("\n\n" . '***********************'
       . "\n" . '    CONGRATULATIONS!'
       . "\n". '***********************'
-      . "\n" . 'Your new project is up and running on the following url: http://' . $project_name . '.docker.localhost:8000');
+      . "\n" . 'Your new project is up and running on the following url: http://' . $project_name . '.docker.localhost:' . $port);
     $this->io->write('Click on the following link to start building your site:');
     system('docker-compose exec php drush uli');
   }
