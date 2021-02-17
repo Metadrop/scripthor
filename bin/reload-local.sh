@@ -251,6 +251,20 @@ then
 
   $DOCKER_EXEC_NPM sh ${DOCKER_PROJECT_ROOT}/scripts/frontend-build.sh ${NPM_RUN_COMMAND}
 
+  # Import translations.
+  LANGUAGES=$($DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} language:info --format=list --fields=language --filter='!en' | sed 's/\r//g')
+
+  for LANGUAGE in $LANGUAGES
+  do
+    FILES=$(find web/modules -name ${LANGUAGE}.po)
+    for FILE in $FILES
+    do
+      if [ -f "$FILE" ]; then
+        $DOCKER_EXEC_TTY_PHP drush @${LOCAL_ALIAS} locale:import ${LANGUAGE} ${DOCKER_PROJECT_ROOT}/${FILE}
+      fi
+    done;
+  done;
+
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} cr
 
   # Show one-time login link.
