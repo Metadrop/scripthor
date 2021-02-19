@@ -10,12 +10,20 @@
 #  Execute from the project root
 #######################################
 
-set -x
+set -e
 
 BACKUPS_DIR_SITE=~/backups-automated/site
 BACKUPS_DIR_DB=~/backups-automated/db
 N_BACKUPS_KEEP=5
 BACKUP_PREFIX=${1:-site}
+
+if [ [ ! -d "./web/sites" ] || [ ! -f "./web/core/modules/system/system.module" ] ]; then
+  printf "************************************************************\n"
+  printf "* Error: Please run the script from a Drupal project root. *\n"
+  printf "************************************************************\n"
+  print_help
+  exit 1
+fi
 
 #######################################
 #  Ensure directory exist
