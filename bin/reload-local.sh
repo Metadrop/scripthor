@@ -40,6 +40,7 @@ NO_ACTION=false
 DATABASE_ONLY=false
 NO_DATABASE=false
 REFRESH_LOCAL_DUMP=false
+SKIP_TRANSLATIONS=false
 
 # Having a month based db backup filename ensures the database is refreshed at least every month.
 BACKUP_FILE_NAME_TEMPLATE=db-$(date +%Y-%m)
@@ -76,6 +77,8 @@ Usage: ${0##*/} [-d|--database-only] [-e|--env=(ENVIRONMENT_NAME)] [-s|--site=(S
 
   -n
   --no-action       Show actions that would be done but do not execute any command. Useful for debugging purposes.
+
+  --skip-translations  Skip translations check and update.
 EOF
 }
 
@@ -131,6 +134,9 @@ do
         ;;
     -n|--no-action)
         NO_ACTION=true
+        ;;
+    --skip-translations)
+        SKIP_TRANSLATIONS=true
         ;;
     --)              # End of all options.
         shift
@@ -246,6 +252,15 @@ then
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} deploy -y
 
   $DOCKER_EXEC_NPM sh ${DOCKER_PROJECT_ROOT}/scripts/frontend-build.sh ${NPM_RUN_COMMAND}
+
+  if [[ ${SKIP_TRANSLATIONS} = false ]]
+  then
+    $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} locale-check
+
+    $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} locale-update
+  fi
+
+  $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} cr
 
   # Show one-time login link.
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} uli
