@@ -60,7 +60,7 @@ ensure_directory ${BACKUPS_DIR_SITE}
 ensure_directory ${BACKUPS_DIR_DB}
 
 # Do the backups
-STAMP=`date +%y%m%d-%H%M%S`;
+STAMP=`date +%Y%m%d-%H%M%S`;
 CURRENT_DIR=$(basename `pwd`)
 drush sql-dump --gzip > ${BACKUPS_DIR_DB}/${BACKUP_PREFIX}-db-${STAMP}.sql-gz;
 cd ..;
