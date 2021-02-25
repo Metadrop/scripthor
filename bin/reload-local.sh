@@ -253,9 +253,7 @@ then
 
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} cim sync -y
 
-  $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} deploy:hook -y
-
-  $DOCKER_EXEC_NPM sh ${DOCKER_PROJECT_ROOT}/scripts/frontend-build.sh ${NPM_RUN_COMMAND}
+  $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} updb -y
 
   if [[ ${SKIP_TRANSLATIONS} = false ]]
   then
@@ -263,6 +261,12 @@ then
 
     $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} locale-update
   fi
+
+  $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} cim sync -y
+
+  $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} deploy:hook -y
+
+  $DOCKER_EXEC_NPM sh ${DOCKER_PROJECT_ROOT}/scripts/frontend-build.sh ${NPM_RUN_COMMAND}
 
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} cr
 
