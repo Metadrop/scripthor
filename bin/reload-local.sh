@@ -14,12 +14,28 @@
 #  - cache rebuild
 #  - display a one time user login link
 #######################################
-
 set -e
 
+function get_default_value() {
+  VARNAME=$1
+  DEFAULT_VALUE=$2
+
+  ENV_VALUE=$(egrep ${VARNAME} ${PROJECT_ROOT}/.env | sed s/${VARNAME}=//)
+  eval "${VARNAME}=${ENV_VALUE:-$DEFAULT_VALUE}"
+}
+
+
 PROJECT_ROOT="./"
-DOCKER_PROJECT_ROOT=$(egrep DOCKER_PROJECT_ROOT ${PROJECT_ROOT}/.env | sed s/DOCKER_PROJECT_ROOT=//)
-DEFAULT_DRUSH_ALIAS=$(egrep DEFAULT_DRUSH_ALIAS ${PROJECT_ROOT}/.env | sed s/DEFAULT_DRUSH_ALIAS=//)
+
+# Default flags values.
+get_default_value DEFAULT_DRUSH_ALIAS site.test
+get_default_value DOCKER_PROJECT_ROOT /var/www/html
+get_default_value NO_ACTION false
+get_default_value DATABASE_ONLY false
+get_default_value NO_DATABASE false
+get_default_value REFRESH_LOCAL_DUMP false
+get_default_value SKIP_TRANSLATIONS false
+get_default_value NPM_RUN_COMMAND dev
 
 # Set the target remote Environment to download database.
 DEFAULT_SITE=$(echo $DEFAULT_DRUSH_ALIAS | cut -d . -f 1)
@@ -33,18 +49,9 @@ DOCKER_EXEC_TTY_PHP="docker-compose exec -T php"
 DOCKER_EXEC_NPM="docker-compose exec node"
 COMPOSER_EXEC="composer"
 RM_EXEC="rm"
-NPM_RUN_COMMAND=$(egrep NPM_RUN_COMMAND ${PROJECT_ROOT}/.env | sed s/NPM_RUN_COMMAND=//)
-
-# Default flags values.
-NO_ACTION=false
-DATABASE_ONLY=false
-NO_DATABASE=false
-REFRESH_LOCAL_DUMP=false
-SKIP_TRANSLATIONS=false
 
 # Having a month based db backup filename ensures the database is refreshed at least every month.
 BACKUP_FILE_NAME_TEMPLATE=db-$(date +%Y-%m)
-
 
 function show_help() {
 cat << EOF
@@ -79,6 +86,19 @@ Usage: ${0##*/} [-d|--database-only] [-e|--env=(ENVIRONMENT_NAME)] [-s|--site=(S
   --no-action       Show actions that would be done but do not execute any command. Useful for debugging purposes.
 
   --skip-translations  Skip translations check and update.
+
+You can add default values to most of the parameters by editing the .env file.
+Here is a relation of the supported variables and their default values
+
+NO_ACTION=false
+DATABASE_ONLY=false
+NO_DATABASE=false
+REFRESH_LOCAL_DUMP=false
+SKIP_TRANSLATIONS=false
+DEFAULT_DRUSH_ALIAS=site.test
+DOCKER_PROJECT_ROOT=/var/www/html
+NPM_RUN_COMMAND=dev
+
 EOF
 }
 
