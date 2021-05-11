@@ -27,6 +27,7 @@ class Handler {
     'reload-local.sh',
     'setup-traefik-port.sh',
     'backup.sh',
+    'update-helper.sh',
   ];
 
   /**
