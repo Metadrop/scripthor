@@ -9,7 +9,7 @@ Works with drupal 8+ projects.
 ## Usage
 
 Drupal Composer Scripthor is used by requiring `composer require metadrop/scripthor`
-in your project project.
+in your project.
 
 Typically, the scaffold operations run automatically as needed, e.g. after
 `composer install`, so it is usually not necessary to do anything different
