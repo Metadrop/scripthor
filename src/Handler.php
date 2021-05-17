@@ -64,8 +64,6 @@ class Handler {
    *   Error when not created
    */
   public function createSymlinks() {
-    $this->io->write('Scripthor start.');
-
     if ($this->createScriptDir()) {
       $this->createScriptLink();
     }
@@ -73,7 +71,6 @@ class Handler {
       $this->io->writeError('./scripts directory not created.');
       throw new \Exception('./scripts directory not created.');
     }
-    $this->io->write('Scripthor finished.');
   }
 
   /**
@@ -104,9 +101,6 @@ class Handler {
       if (!file_exists($script)) {
         symlink(self::TARGET_DIR . $file, $script);
         $this->io->write('Script created: ' . $file);
-      }
-      else {
-        $this->io->write('Script exists: ' . $file);
       }
     }
   }
