@@ -2,6 +2,24 @@
 # Vars:
 set -e
 
+function show_help() {
+cat << EOF
+
+Update composer packages.
+
+Update includes:
+  - Commit current configuration not exported (Drupal +8).
+  - Identify updatable composer packages (outdated + minor versions)
+  - For each package try to update and commit it (recovers previous state if fails)
+
+Usage: ${0##*/} [--author=Name <user@example.com>]
+  -h|--help         Show this help and exit.
+
+  --author   Overrides default Git author name. Example Name <user@example.com>
+
+EOF
+}
+
 function composer_update_outdated() {
   DRUPAL_VERSION=$1
 
@@ -43,13 +61,37 @@ function composer_update_outdated() {
         git add config
       fi
 
-      git commit -m "UPDATE - $c" --author="$author" -n || echo "No changes to commit"
+      git commit -m "UPDATE - $c" "$author_commit" -n || echo "No changes to commit"
       echo -e "\n\n"
     done
 }
 
-author=${1:-"SCRIPTHOR <user@example.com>"}
-drush=${drush:-vendor/bin/drush}
+## Defaults:
+author_commit=""
+drush="vendor/bin/drush"
+
+# Process script options.
+#########################
+for i in "$@"
+do
+  case "${i}" in
+    -h|--help)
+        show_help    # Display a usage synopsis.
+        exit
+        ;;
+    --author=*)
+        author="${i#*=}"
+        echo "GIT author will be overrided with: $author"
+        author_commit="--author=\"$author\""
+        ;;
+    -?*|*)
+        printf 'ERROR: Unknown option: %s\n' "$1" >&2
+        show_help
+        exit 1
+        ;;
+  esac
+shift
+done
 
 # Get the packages to be updated (direct dependencies): outdated, minor version only
 packages_to_update=$(composer show -omND)
@@ -67,7 +109,7 @@ if [[ $DRUPAL_VERSION -gt 8 ]]; then
   echo "Consolidating configuration (drush cex + git add):"
   # estabilize current config (do not commit not exported config assiciated to a module):
   drush cex -y
-  git add config && git commit -m "CONFIG - Consolidate current config stored in database" --author="$author" -n  || echo "No changes to commit"
+  git add config && git commit -m "CONFIG - Consolidate current config stored in database" "$author_commit" -n  || echo "No changes to commit"
 
   echo "Clearing cache"
   drush cr
