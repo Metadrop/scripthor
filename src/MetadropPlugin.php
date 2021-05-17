@@ -75,7 +75,6 @@ class MetadropPlugin implements PluginInterface, EventSubscriberInterface, Capab
    * @throws \Exception
    */
   public function scripthorInstaller(Event $event) {
-    $this->io->write('scripthorInstaller: ' . $event->getName());
     $this->handler->createSymlinks();
   }
 
@@ -86,7 +85,6 @@ class MetadropPlugin implements PluginInterface, EventSubscriberInterface, Capab
    *   The composer event.
    */
   public function onCreateProject(Event $event) {
-    $this->io->write('scripthorInstaller: ' . $event->getName());
     $this->handler->createProjectAssistant();
   }
 
