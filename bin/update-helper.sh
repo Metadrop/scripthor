@@ -81,7 +81,7 @@ do
         ;;
     --author=*)
         author="${i#*=}"
-        echo "GIT author will be overrided with: $author"
+        echo "GIT author will be overriden with: $author"
         author_commit="--author=\"$author\""
         ;;
     -?*|*)
