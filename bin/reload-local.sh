@@ -47,7 +47,7 @@ SITE=$DEFAULT_SITE
 DOCKER_EXEC_PHP="docker-compose exec php"
 DOCKER_EXEC_TTY_PHP="docker-compose exec -T php"
 DOCKER_EXEC_NPM="docker-compose exec node"
-COMPOSER_EXEC="composer"
+COMPOSER_EXEC="docker-compose exec php composer"
 RM_EXEC="rm"
 
 # Having a month based db backup filename ensures the database is refreshed at least every month.
@@ -230,8 +230,8 @@ cd ${PROJECT_ROOT}
 
 if [[ ${DATABASE_ONLY} = false ]]
 then
-  # Install dependencies and compile css.
-  $COMPOSER_EXEC install --ignore-platform-reqs
+  # Install dependencies.
+  $COMPOSER_EXEC install
 
 fi
 
