@@ -230,8 +230,8 @@ cd ${PROJECT_ROOT}
 
 if [[ ${DATABASE_ONLY} = false ]]
 then
-  # Install dependencies and compile css.
-  $COMPOSER_EXEC install --ignore-platform-reqs
+  # Install dependencies.
+  $COMPOSER_EXEC install
 
 fi
 
