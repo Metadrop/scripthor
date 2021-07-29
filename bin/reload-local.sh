@@ -100,7 +100,7 @@ DEFAULT_DRUSH_ALIAS=site.test
 DOCKER_PROJECT_ROOT=/var/www/html
 NPM_RUN_COMMAND=dev
 
-If THEME_PATH is not defined in the .env file frontend build step will be skip.
+If THEME_PATH is not defined in the .env file frontend build step will be skipped.
 
 EOF
 }
