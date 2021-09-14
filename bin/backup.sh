@@ -6,14 +6,18 @@
 #  or automated by cron, as it do a
 #  cleanup for oldest backups.
 #
-#             WARNING!
-#  Execute from the project root
-#
 #
 #  $1: Folder to backup to. Optional.
 #
 #  $2: Site name. used top name the
 #      backup files. Optional.
+#
+#
+#             WARNING!
+#  Execute from the project root
+#
+#             WARNING!
+#  Not compatible with multisite setups
 #
 #######################################
 
