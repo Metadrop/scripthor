@@ -8,15 +8,22 @@
 #
 #             WARNING!
 #  Execute from the project root
+#
+#
+#  $1: Folder to backup to. Optional.
+#
+#  $2: Site name. used top name the
+#      backup files. Optional.
+#
 #######################################
 
 set -e
 
-BACKUPS_ROOT=./backups
+BACKUPS_ROOT="${1:-./backups}"
 BACKUPS_DIR_SITE=$BACKUPS_ROOT/backups-automated/site
 BACKUPS_DIR_DB=$BACKUPS_ROOT/backups-automated/db
 N_BACKUPS_KEEP=5
-BACKUP_PREFIX=${1:-site}
+BACKUP_PREFIX=${2:-site}
 
 if [[ ! -d "./web/sites" ]] || [[ ! -f "./web/core/modules/system/system.module" ]]
 then
@@ -26,6 +33,13 @@ then
   print_help
   exit 1
 fi
+
+if [[ ! -d $BACKUPS_ROOT ]]
+then
+  printf "The destination folder '$BACKUPS_ROOT' is not a directory\n"
+  exit -1
+fi
+
 
 #######################################
 #  Ensure directory exist
@@ -77,5 +91,5 @@ printf "OK!"
 printf "\nCleaning old backups..."
 cleanup ${BACKUPS_DIR_SITE} ${N_BACKUPS_KEEP}
 cleanup ${BACKUPS_DIR_DB} ${N_BACKUPS_KEEP}
-printf "OK!"
-printf "\n"
+printf "OK!\n"
+
