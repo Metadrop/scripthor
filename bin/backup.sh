@@ -12,12 +12,14 @@
 
 set -e
 
-BACKUPS_DIR_SITE=~/backups-automated/site
-BACKUPS_DIR_DB=~/backups-automated/db
+BACKUPS_ROOT=./backups
+BACKUPS_DIR_SITE=$BACKUPS_ROOT/backups-automated/site
+BACKUPS_DIR_DB=$BACKUPS_ROOT/backups-automated/db
 N_BACKUPS_KEEP=5
 BACKUP_PREFIX=${1:-site}
 
-if [ [ ! -d "./web/sites" ] || [ ! -f "./web/core/modules/system/system.module" ] ]; then
+if [[ ! -d "./web/sites" ]] || [[ ! -f "./web/core/modules/system/system.module" ]]
+then
   printf "************************************************************\n"
   printf "* Error: Please run the script from a Drupal project root. *\n"
   printf "************************************************************\n"
@@ -34,7 +36,7 @@ fi
 function ensure_directory() {
   if [ ! -d $1 ]
   then
-    mkdir -p $1;
+    mkdir -p $1
   fi
 }
 
@@ -46,13 +48,14 @@ function ensure_directory() {
 #    $2: max number of files to keep
 #######################################
 function cleanup() {
-  cd $1;
+  cd $1
   N_BACKUPS=`ls -1 | wc -l`
   if [ ${N_BACKUPS} -gt $2 ]
   then
-    LATEST_BACKUPS=`ls -ct1 | head -n $2 | tr '\n' '|'`;
+    LATEST_BACKUPS=`ls -ct1 | head -n $2 | tr '\n' '|'`
     ls -1 | grep -E -v "^(${LATEST_BACKUPS})$" | xargs rm
   fi
+  cd - > /dev/null
 }
 
 # Ensure directories exist
@@ -60,13 +63,19 @@ ensure_directory ${BACKUPS_DIR_SITE}
 ensure_directory ${BACKUPS_DIR_DB}
 
 # Do the backups
-STAMP=`date +%Y%m%d-%H%M%S`;
-CURRENT_DIR=$(basename `pwd`)
-drush sql-dump --gzip > ${BACKUPS_DIR_DB}/${BACKUP_PREFIX}-db-${STAMP}.sql-gz;
-cd ..;
+STAMP=`date +%Y%m%d-%H%M%S`
+printf "\nDumping database to ${BACKUPS_DIR_DB}/${BACKUP_PREFIX}-db-${STAMP}.sql-gz..."
+drush sql-dump --gzip > ${BACKUPS_DIR_DB}/${BACKUP_PREFIX}-db-${STAMP}.sql-gz
+printf "OK!"
 
-tar -czpf ${BACKUPS_DIR_SITE}/${BACKUP_PREFIX}-code-${STAMP}.tar.gz ${CURRENT_DIR}/;
+printf "\nBackuping codebase and files..."
+tar -czpf ${BACKUPS_DIR_SITE}/${BACKUP_PREFIX}-code-${STAMP}.tar.gz web/
+printf "OK!"
+
 
 # Cleanup for older files
+printf "\nCleaning old backups..."
 cleanup ${BACKUPS_DIR_SITE} ${N_BACKUPS_KEEP}
 cleanup ${BACKUPS_DIR_DB} ${N_BACKUPS_KEEP}
+printf "OK!"
+printf "\n"
