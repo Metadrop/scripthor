@@ -47,6 +47,13 @@ class Handler {
   protected $io;
 
   /**
+   * Wether the user wants to initialize a Git repository or not.
+   *
+   * @var bool
+   */
+  protected $initializeGit;
+
+  /**
    * Handler constructor.
    *
    * @param \Composer\Composer $composer
@@ -142,23 +149,23 @@ class Handler {
   protected function setConfFiles() {
     $current_dir = basename(getcwd());
     $project_name = $this->io->ask('Please enter the project name (default to ' . $current_dir . '): ', $current_dir);
-    
-    
+
+
     $this->io->write('Setting up .env file');
     $env = file_get_contents(self::ENV_FILE . '.example');
     $env = str_replace('example', $project_name, $env);
-    
+
     $theme_name = str_replace('-', '_', $project_name);
     $env = str_replace('THEME_PATH=/var/www/html/web/themes/custom/' . $project_name, 'THEME_PATH=/var/www/html/web/themes/custom/' . $theme_name, $env);
     file_put_contents(self::ENV_FILE, $env);
-    
+
 
     $this->io->write('Setting up Drush aliases file');
     $source_filename = self::DRUSH_ALIASES_FOLDER . "/sitename" . self::DRUSH_ALIASES_FILE_SUFFIX . ".example";
     $aliases = file_get_contents($source_filename);
     $aliases = str_replace('sitename', $project_name, $aliases);
     file_put_contents(self::DRUSH_ALIASES_FOLDER . "/$project_name " . self::DRUSH_ALIASES_FILE_SUFFIX, $aliases);
-    
+
     $this->io->write('Setting up behat.yml file');
     $behat_yml = file_get_contents('./behat.yml');
     $behat_yml = str_replace('example', $project_name, $behat_yml);
@@ -174,12 +181,15 @@ class Handler {
 
     return $project_name;
   }
- 
+
   /**
    * Setup git.
    */
   protected function setUpGit() {
-    if ($this->io->askConfirmation('Do you want to initialize a git repository for your new project? (Y/n) ')) {
+
+    $this->initializeGit = $this->io->askConfirmation('Do you want to initialize a git repository for your new project? (Y/n) ');
+
+    if ($this->initializeGit) {
       system('git init');
       system('git checkout -b dev');
     }
@@ -235,8 +245,12 @@ class Handler {
    */
   protected function assistantSuccess($project_name) {
     $port = shell_exec('docker-compose port traefik 80 | cut -d: -f2');
-    system('git add .');
-    system('git commit -m "Initial commit" -n');
+
+    if ($this->initializeGit) {
+        system('git add .');
+        system('git commit -m "Initial commit" -n');
+    }
+
     $this->io->write("\n\n" . '***********************'
       . "\n" . '    CONGRATULATIONS!'
       . "\n". '***********************'
