@@ -3,7 +3,7 @@
 #  Perform a full backup of the site
 #  on the users home.
 #  This script can be called directly
-#  or automated by cron, as it do a
+#  or automated by cron, as it does a
 #  cleanup for oldest backups.
 #
 #
