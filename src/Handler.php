@@ -252,11 +252,13 @@ class Handler {
     }
 
     $this->io->write("\n\n" . '***********************'
-      . "\n" . '    CONGRATULATIONS!'
-      . "\n". '***********************'
-      . "\n" . 'Your new project is up and running on the following url: http://' . $project_name . '.docker.localhost:' . $port);
+      . "\n    CONGRATULATIONS!"
+      . "\n***********************"
+      . "\nYour new project is up and running on the following url: http://$project_name.docker.localhost:$port"
+      . "\nRun `make info` for more URLs to other provided tools\n");
     $this->io->write('Click on the following link to start building your site:');
     system('docker-compose exec php drush uli');
+    $this->io->write("\n");
   }
 
 }
