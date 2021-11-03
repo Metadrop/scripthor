@@ -28,7 +28,7 @@ function get_default_value() {
 PROJECT_ROOT="./"
 
 # Default flags values.
-get_default_value DEFAULT_DRUSH_ALIAS site.test
+get_default_value DEFAULT_DRUSH_ALIAS sitename.test
 get_default_value DOCKER_PROJECT_ROOT /var/www/html
 get_default_value NO_ACTION false
 get_default_value DATABASE_ONLY false
@@ -96,7 +96,7 @@ DATABASE_ONLY=false
 NO_DATABASE=false
 REFRESH_LOCAL_DUMP=false
 SKIP_TRANSLATIONS=false
-DEFAULT_DRUSH_ALIAS=site.test
+DEFAULT_DRUSH_ALIAS=sitename.test
 DOCKER_PROJECT_ROOT=/var/www/html
 NPM_RUN_COMMAND=dev
 
