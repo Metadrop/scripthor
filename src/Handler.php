@@ -1,6 +1,6 @@
 <?php
 
-namespace Metadrop;
+namespace Metadrop\scripthor;
 
 use Composer\Composer;
 use Composer\IO\IOInterface;

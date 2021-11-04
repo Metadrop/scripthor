@@ -23,10 +23,10 @@
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
-            "Metadrop\\": "src"
+            "Metadrop\\scripthor\\": "src"
         }
     },
     "extra": {
-        "class": "Metadrop\\MetadropPlugin"
+        "class": "Metadrop\\scripthor\\MetadropPlugin"
     }
 }
