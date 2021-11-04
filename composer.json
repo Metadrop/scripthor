@@ -15,7 +15,7 @@
     ],
     "require": {
         "composer-plugin-api": "^1.1 || ^2.0",
-        "composer/composer": "^1.8@stable || ^2.0",
+        "composer/composer": "^1.10.23@stable || ^2.1.9",
         "drush/drush": "^9.0|^10.0",
         "php": ">=7.0.8"
     },
