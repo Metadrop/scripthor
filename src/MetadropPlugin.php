@@ -52,7 +52,7 @@ class MetadropPlugin implements PluginInterface, EventSubscriberInterface, Capab
    * {@inheritdoc}
    */
   public function getCapabilities() {
-    return ['Composer\Plugin\Capability\CommandProvider' => 'Metadrop\CommandProvider'];
+    return ['Composer\Plugin\Capability\CommandProvider' => 'Metadrop\scripthor\CommandProvider'];
   }
 
   /**
