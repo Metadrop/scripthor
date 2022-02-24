@@ -13,9 +13,12 @@ Update includes:
   - For each package try to update and commit it (recovers previous state if fails)
 
 Usage: ${0##*/} [--author=Name <user@example.com>]
-  -h|--help         Show this help and exit.
 
-  --author   Overrides default Git author name. Example Name <user@example.com>
+  -h|--help                 Show this help and exit.
+
+  --author                  Overrides default Git author name. Example Name <user@example.com>
+
+  --no-dev                  Disables search in require-dev packages.
 
 EOF
 }
