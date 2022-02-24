@@ -27,7 +27,7 @@ function composer_update_outdated() {
   DRUPAL_VERSION=$1
 
   # Outdated, minor version, just name, direct dependencies:
-  for c in $(composer show -omND)
+  for c in $($updates)
     do
       echo -e "\n/// UPDATING: " $c "///////////////////////////////"
 
@@ -72,6 +72,7 @@ function composer_update_outdated() {
 ## Defaults:
 author_commit=""
 drush="vendor/bin/drush"
+updates="composer show -omND"
 
 # Process script options.
 #########################
@@ -97,7 +98,7 @@ shift
 done
 
 # Get the packages to be updated (direct dependencies): outdated, minor version only
-packages_to_update=$(composer show -omND)
+packages_to_update=$($updates)
 DRUPAL_VERSION="$(${drush} status --format=list 'Drupal version' | cut -d. -f1 -)"
 
 echo -e "\nPackages to update:"
