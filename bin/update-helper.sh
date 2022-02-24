@@ -88,6 +88,10 @@ do
         echo "GIT author will be overriden with: $author"
         author_commit="--author=\"$author\""
         ;;
+    --no-dev)
+        echo "Updates without require-dev packages."
+        updates="composer show -omND --no-dev"
+        ;;
     -?*|*)
         printf 'ERROR: Unknown option: %s\n' "$1" >&2
         show_help
