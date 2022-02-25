@@ -90,7 +90,7 @@ do
         ;;
     --no-dev)
         echo "Updates without require-dev packages."
-        updates="composer show -omND --no-dev"
+        updates+=" --no-dev"
         ;;
     -?*|*)
         printf 'ERROR: Unknown option: %s\n' "$1" >&2
