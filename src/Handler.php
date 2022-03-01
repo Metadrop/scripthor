@@ -179,6 +179,16 @@ class Handler {
     $this->io->write('Setting up docker-compose.override.yml');
     copy('./docker-compose.override.yml.dist', './docker-compose.override.yml');
 
+    $this->io->write('Setting up phpunit.xml');
+    copy('./phpunit.xml.dist', './phpunit.xml');
+
+    $this->io->write('Setting up phpcs.xml');
+    copy('./phpcs.xml.dist', './phpcs.xml.dist');
+
+    $this->io->write('Setting up phpmd.xml');
+    copy('./phpmd.xml.dist', './phpmd.xml');
+
+
     return $project_name;
   }
 
