@@ -164,7 +164,7 @@ class Handler {
     $source_filename = self::DRUSH_ALIASES_FOLDER . "/sitename" . self::DRUSH_ALIASES_FILE_SUFFIX . ".example";
     $aliases = file_get_contents($source_filename);
     $aliases = str_replace('sitename', $project_name, $aliases);
-    file_put_contents(self::DRUSH_ALIASES_FOLDER . "/$project_name " . self::DRUSH_ALIASES_FILE_SUFFIX, $aliases);
+    file_put_contents(self::DRUSH_ALIASES_FOLDER . "/$project_name" . self::DRUSH_ALIASES_FILE_SUFFIX, $aliases);
 
     $this->io->write('Setting up behat.yml file');
     $behat_yml = file_get_contents('./behat.yml');
