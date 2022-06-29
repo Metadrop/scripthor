@@ -233,6 +233,7 @@ class Handler {
       $drush_yml = str_replace('example', $project_name, $drush_yml);
       file_put_contents('./web/sites/default/local.drush.yml', $drush_yml);
       system('docker-compose exec php drush si');
+      system('docker-compose exec php drush cr');
     }
   }
 
