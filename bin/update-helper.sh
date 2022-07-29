@@ -20,6 +20,7 @@ Usage: ${0##*/} [--author=Name <user@example.com>]
 
   --no-dev                  Disables search in require-dev packages.
 
+  --manual                  Ask for each dependency before update it
 EOF
 }
 
@@ -29,6 +30,19 @@ function composer_update_outdated() {
   # Outdated, minor version, just name, direct dependencies:
   for c in $($updates)
     do
+      if [[ $manual ]]; then
+        while true; do
+          read -p "Do you want to update $c ? [YyNn] " yn
+            case $yn in
+                [YyNn]* ) break;;
+                * ) echo "Please answer Y or N.";;
+            esac
+        done
+        if [[ "${yn,,}" == "n" ]]; then
+          continue;
+        fi
+      fi
+
       echo -e "\n/// UPDATING: " $c "///////////////////////////////"
 
       set +e
@@ -73,6 +87,7 @@ function composer_update_outdated() {
 author_commit=""
 drush="vendor/bin/drush"
 updates="composer show -omND"
+manual=false
 
 # Process script options.
 #########################
@@ -91,6 +106,10 @@ do
     --no-dev)
         echo "Updates without require-dev packages."
         updates+=" --no-dev"
+        ;;
+    --manual)
+        echo "Ask for each dependency before update it."
+        manual=true
         ;;
     -?*|*)
         printf 'ERROR: Unknown option: %s\n' "$1" >&2
