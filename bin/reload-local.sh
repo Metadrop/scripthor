@@ -281,7 +281,7 @@ then
     $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} locale-update
   fi
 
-  $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} cim sync -y
+  $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} cim -y
 
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} deploy:hook -y
 
