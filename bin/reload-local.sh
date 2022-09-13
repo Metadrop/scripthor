@@ -267,7 +267,7 @@ then
   # Execute updates and import configuration.
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} updb -y
 
-  $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} cim sync -y
+  $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} cim -y
 
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} deploy:hook -y
 
