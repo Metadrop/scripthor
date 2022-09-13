@@ -34,7 +34,6 @@ get_default_value NO_ACTION false
 get_default_value DATABASE_ONLY false
 get_default_value NO_DATABASE false
 get_default_value REFRESH_LOCAL_DUMP false
-get_default_value SKIP_TRANSLATIONS false
 get_default_value NPM_RUN_COMMAND dev
 get_default_value THEME_PATH ''
 
@@ -86,8 +85,6 @@ Usage: ${0##*/} [-d|--database-only] [-e|--env=(ENVIRONMENT_NAME)] [-s|--site=(S
   -n
   --no-action       Show actions that would be done but do not execute any command. Useful for debugging purposes.
 
-  --skip-translations  Skip translations check and update.
-
 You can add default values to most of the parameters by editing the .env file.
 Here is a relation of the supported variables and their default values
 
@@ -95,7 +92,6 @@ NO_ACTION=false
 DATABASE_ONLY=false
 NO_DATABASE=false
 REFRESH_LOCAL_DUMP=false
-SKIP_TRANSLATIONS=false
 DEFAULT_DRUSH_ALIAS=sitename.test
 DOCKER_PROJECT_ROOT=/var/www/html
 NPM_RUN_COMMAND=dev
@@ -157,9 +153,6 @@ do
         ;;
     -n|--no-action)
         NO_ACTION=true
-        ;;
-    --skip-translations)
-        SKIP_TRANSLATIONS=true
         ;;
     --)              # End of all options.
         shift
@@ -273,13 +266,6 @@ then
 
   # Execute updates and import configuration.
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} updb -y
-
-  if [[ ${SKIP_TRANSLATIONS} = false ]]
-  then
-    $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} locale-check
-
-    $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} locale-update
-  fi
 
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} cim sync -y
 
