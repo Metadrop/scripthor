@@ -1,6 +1,8 @@
 #!/bin/bash
+set -ex
+
 # Vars:
-set -e
+environment=''
 
 function show_help() {
 cat << EOF
@@ -13,18 +15,19 @@ Update includes:
   - For each package try to update and commit it (recovers previous state if fails)
 
 Usage: ${0##*/} [--author=Name <user@example.com>]
+  -h|--help  Show this help and exit.
 
-  -h|--help                 Show this help and exit.
+  --author   Overrides default Git author name. Example Name <user@example.com>
 
-  --author                  Overrides default Git author name. Example Name <user@example.com>
+  --no-dev   Disables search in require-dev packages.
 
-  --no-dev                  Disables search in require-dev packages.
-
+  --env      Force drush to work with an especific environment alias
 EOF
 }
 
 function composer_update_outdated() {
-  DRUPAL_VERSION=$1
+  drupal_version=$1
+  environment=$2
 
   # Outdated, minor version, just name, direct dependencies:
   for c in $($updates)
@@ -49,18 +52,18 @@ function composer_update_outdated() {
       git add web
 
       # Clear caches to prevent problems with updated code.
-      if [[ $DRUPAL_VERSION -eq 7 ]]; then
-        drush cc all
+      if [[ $drupal_version -eq 7 ]]; then
+        drush $environment cc all
       fi
-      if [[ $DRUPAL_VERSION -gt 8 ]]; then
-        drush cr
+      if [[ $drupal_version -gt 8 ]]; then
+        drush $environment cr
       fi
 
-      drush updb -y
+      drush $environment updb -y
 
-      if [[ $DRUPAL_VERSION -gt 8 ]]; then
+      if [[ $drupal_version -gt 8 ]]; then
         echo "Exporting any new configuration:"
-        drush cex -y
+        drush $environment cex -y
         git add config
       fi
 
@@ -92,6 +95,10 @@ do
         echo "Updates without require-dev packages."
         updates+=" --no-dev"
         ;;
+    --env=*)
+        environment="${i#*=}"
+        echo "Environment used will be $environment"
+        ;;
     -?*|*)
         printf 'ERROR: Unknown option: %s\n' "$1" >&2
         show_help
@@ -103,31 +110,31 @@ done
 
 # Get the packages to be updated (direct dependencies): outdated, minor version only
 packages_to_update=$($updates)
-DRUPAL_VERSION="$(${drush} status --format=list 'Drupal version' | cut -d. -f1 -)"
+drupal_version="$(${drush} $environment status --format=list 'Drupal version' | cut -d. -f1 -)"
 
 echo -e "\nPackages to update:"
 echo "$packages_to_update"
 
 # Revert any overriden config to only export new configurations provided by module updates.
-if [[ $DRUPAL_VERSION -gt 8 ]]; then
+if [[ $drupal_version -gt 8 ]]; then
   echo "Reverting any overriden configuration (drush cim)."
-  drush cr
-  drush cim -y
+  drush $environment cr
+  drush $environment cim -y
 
   echo "Consolidating configuration (drush cex + git add):"
   # estabilize current config (do not commit not exported config assiciated to a module):
-  drush cex -y
+  drush $environment cex -y
   git add config && git commit -m "CONFIG - Consolidate current config stored in database" "$author_commit" -n  || echo "No changes to commit"
 
   echo "Clearing cache"
-  drush cr
+  drush $environment cr
 
   echo "Re-importing configuration"
-  drush cim -y
+  drush $environment cim -y
 fi
 
 echo -e "\nUpdating packages:"
-composer_update_outdated $DRUPAL_VERSION
+composer_update_outdated $drupal_version $environment
 
 echo -e "\nPackages that were not updated:"
 composer show -omD
