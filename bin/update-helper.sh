@@ -125,7 +125,7 @@ done
 
 # Get the packages to be updated (direct dependencies): outdated, minor version only
 packages_to_update=$($updates)
-drupal_version="$(run_drush $environments status --format=list 'Drupal version' | cut -d. -f1 -)"
+drupal_version="$(drush status --format=list 'Drupal version' | cut -d. -f1 -)"
 
 echo -e "\nPackages to update:"
 echo "$packages_to_update"
