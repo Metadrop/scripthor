@@ -2,7 +2,7 @@
 set -e
 
 # Vars:
-environments=''
+environments='@self'
 
 function show_help() {
 cat << EOF
@@ -74,17 +74,12 @@ function composer_update_outdated() {
 
 function run_drush() {
   environments=$1
-  commands=${@:2}
-  if [ "$environments" -ne "" ]
-  then
-    drush $commands
-  else
-    IFS=',' read -a environment_list <<< $environments
-    for environment in "${environment_list[@]}"
-    do
-      drush $environment $commands
-    done
-  fi
+  commands="${@:2}"
+  IFS=',' read -a environment_list <<< $environments
+  for environment in "${environment_list[@]}"
+  do
+    drush $environment $commands
+  done
 }
 
 ## Defaults:
