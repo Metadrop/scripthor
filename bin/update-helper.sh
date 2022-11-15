@@ -53,17 +53,17 @@ function composer_update_outdated() {
 
       # Clear caches to prevent problems with updated code.
       if [[ $drupal_version -eq 7 ]]; then
-        run_drush $environments cc all
+        run_drush "$environments" cc all
       fi
       if [[ $drupal_version -gt 8 ]]; then
-        run_drush $environments cr
+        run_drush "$environments" cr
       fi
 
-      run_drush $environments updb -y
+      run_drush "$environments" updb -y
 
       if [[ $drupal_version -gt 8 ]]; then
         echo "Exporting any new configuration:"
-        run_drush $environments cex -y
+        run_drush "$environments" cex -y
         git add config
       fi
 
