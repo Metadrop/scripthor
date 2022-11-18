@@ -3,6 +3,7 @@ set -e
 
 # Vars:
 environments='@self'
+updated_packages=""
 
 function show_help() {
 cat << EOF
@@ -68,7 +69,8 @@ function composer_update_outdated() {
       fi
 
       git commit -m "UPDATE - $c" "$author_commit" -n || echo "No changes to commit"
-      echo -e "\n\n"
+      updated_packages = "$c\n$updated_packages"
+      echo -e "\n/// FINISHED UPDATING: " $c "///////////////////////////////\n"
     done
 }
 
@@ -78,7 +80,9 @@ function run_drush() {
   IFS=',' read -a environment_list <<< $environments
   for environment in "${environment_list[@]}"
   do
+    echo "Running drush $commands on the '$environment' environment:"
     drush $environment $commands
+    echo "\n"
   done
 }
 
@@ -122,29 +126,33 @@ done
 packages_to_update=$($updates)
 drupal_version="$(drush status --format=list 'Drupal version' | cut -d. -f1 -)"
 
-echo -e "\nPackages to update:"
+echo -e "\n/// PACKAGES TO UPDATE ///\n"
 echo "$packages_to_update"
+echo "\n"
 
 # Revert any overriden config to only export new configurations provided by module updates.
 if [[ $drupal_version -gt 8 ]]; then
-  echo "Reverting any overriden configuration (drush cim)."
+  echo "Reverting any overriden configuration (drush cim). \n"
   run_drush $environments cr
   run_drush $environments cim -y
 
-  echo "Consolidating configuration (drush cex + git add):"
+  echo "Consolidating configuration (drush cex + git add):. \n"
   # estabilize current config (do not commit not exported config assiciated to a module):
   run_drush $environments cex -y
   git add config && git commit -m "CONFIG - Consolidate current config stored in database" "$author_commit" -n  || echo "No changes to commit"
 
-  echo "Clearing cache"
+  echo "Clearing cache. \n"
   run_drush $environments cr
 
-  echo "Re-importing configuration"
+  echo "Re-importing configuration. \n"
   run_drush $environments cim -y
 fi
 
-echo -e "\nUpdating packages:"
+echo -e "\n/// UPDATING PACKAGES ///\n"
 composer_update_outdated $drupal_version $environments
 
-echo -e "\nPackages that were not updated:"
-composer show -omD
+echo -e "\n/// PACKAGES UPDATED:///\n"
+echo updated_packages
+
+echo -e "\n/// PACKAGES NOT UPDATED:///\n"
+composer show -oD
