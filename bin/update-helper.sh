@@ -35,6 +35,8 @@ function composer_update_outdated() {
     do
       printf '\n/// UPDATING: " %s "///////////////////////////////\n' "$c"
 
+      package_version_from=$(composer show $c | grep versions | awk '{print $4}')
+
       set +e
       composer update $c --with-dependencies
       if [[ $? -ne 0 ]]; then
@@ -45,6 +47,8 @@ function composer_update_outdated() {
         continue
       fi
       set -e
+
+      package_version_to=$(composer show $c | grep versions | awk '{print $4}')
 
       # Composer files:
       git add composer.json composer.lock
@@ -69,7 +73,12 @@ function composer_update_outdated() {
       fi
 
       git commit -m "UPDATE - $c" "$author_commit" -n || printf "No changes to commit\n"
-      updated_packages="$c\n$updated_packages"
+
+      if [ "$package_version_from" != "$package_version_to" ]
+      then
+        updated_packages="$c from $package_version_from to $package_version_to\n$updated_packages"
+      fi
+
       printf '\n/// FINISHED UPDATING: " %s "///////////////////////////////\n' "$c"
     done
 }
