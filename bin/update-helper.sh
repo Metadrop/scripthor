@@ -82,7 +82,7 @@ function run_drush() {
   do
     echo "Running drush $commands on the '$environment' environment:"
     drush $environment $commands
-    echo "\n"
+    echo -e "\n"
   done
 }
 
@@ -128,23 +128,23 @@ drupal_version="$(drush status --format=list 'Drupal version' | cut -d. -f1 -)"
 
 echo -e "\n/// PACKAGES TO UPDATE ///\n"
 echo "$packages_to_update"
-echo "\n"
+echo -e "\n"
 
 # Revert any overriden config to only export new configurations provided by module updates.
 if [[ $drupal_version -gt 8 ]]; then
-  echo "Reverting any overriden configuration (drush cim). \n"
+  echo -e "Reverting any overriden configuration (drush cim). \n"
   run_drush $environments cr
   run_drush $environments cim -y
 
-  echo "Consolidating configuration (drush cex + git add):. \n"
+  echo -e "Consolidating configuration (drush cex + git add):. \n"
   # estabilize current config (do not commit not exported config assiciated to a module):
   run_drush $environments cex -y
   git add config && git commit -m "CONFIG - Consolidate current config stored in database" "$author_commit" -n  || echo "No changes to commit"
 
-  echo "Clearing cache. \n"
+  echo -e "Clearing cache. \n"
   run_drush $environments cr
 
-  echo "Re-importing configuration. \n"
+  echo -e "Re-importing configuration. \n"
   run_drush $environments cim -y
 fi
 
