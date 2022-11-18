@@ -33,14 +33,14 @@ function composer_update_outdated() {
   # Outdated, minor version, just name, direct dependencies:
   for c in $($updates)
     do
-      echo -e "\n/// UPDATING: " $c "///////////////////////////////"
+      printf '\n/// UPDATING: " %s "///////////////////////////////\n' "$c"
 
       set +e
       composer update $c --with-dependencies
       if [[ $? -ne 0 ]]; then
-        echo -e "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-        echo "Updating package FAILED: recovering previous state."
-        echo -e "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+        printf '\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+        printf 'Updating package FAILED: recovering previous state.'
+        printf '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n'
         git checkout composer.json composer.lock
         continue
       fi
@@ -63,14 +63,14 @@ function composer_update_outdated() {
       run_drush "$environments" updb -y
 
       if [[ $drupal_version -gt 8 ]]; then
-        echo "Exporting any new configuration:"
+        printf 'Exporting any new configuration: \n'
         run_drush "$environments" cex -y
         git add config
       fi
 
-      git commit -m "UPDATE - $c" "$author_commit" -n || echo "No changes to commit"
-      updated_packages = "$c\n$updated_packages"
-      echo -e "\n/// FINISHED UPDATING: " $c "///////////////////////////////\n"
+      git commit -m "UPDATE - $c" "$author_commit" -n || printf "No changes to commit\n"
+      updated_packages="$c\n$updated_packages"
+      printf '\n/// FINISHED UPDATING: " %s "///////////////////////////////\n' "$c"
     done
 }
 
@@ -80,8 +80,9 @@ function run_drush() {
   IFS=',' read -a environment_list <<< $environments
   for environment in "${environment_list[@]}"
   do
-    echo "Running drush $commands on the '$environment' environment:"
+    printf 'Running drush %s on the "%s" environment:\n' "$commands" "$environment"
     drush $environment $commands
+    printf '\n'
   done
 }
 
@@ -101,16 +102,16 @@ do
         ;;
     --author=*)
         author="${i#*=}"
-        echo "GIT author will be overriden with: $author"
+        printf "GIT author will be overriden with: %s\n" "$author"
         author_commit="--author=\"$author\""
         ;;
     --no-dev)
-        echo "Updates without require-dev packages."
+        printf "Updates without require-dev packages.\n"
         updates+=" --no-dev"
         ;;
     --envs=*)
         environments="${i#*=}"
-        echo "Environments used will be $environments"
+        printf "Environments used will be %s\n" "$environments"
         ;;
     -?*|*)
         printf 'ERROR: Unknown option: %s\n' "$1" >&2
@@ -125,33 +126,33 @@ done
 packages_to_update=$($updates)
 drupal_version="$(drush status --format=list 'Drupal version' | cut -d. -f1 -)"
 
-echo -e "\n/// PACKAGES TO UPDATE ///\n"
+printf '\n/// PACKAGES TO UPDATE ///\n'
 echo "$packages_to_update"
-echo -e "\n"
+printf '\n'
 
 # Revert any overriden config to only export new configurations provided by module updates.
 if [[ $drupal_version -gt 8 ]]; then
-  echo -e "Reverting any overriden configuration (drush cim). \n"
+  printf '\n Reverting any overriden configuration (drush cim). \n'
   run_drush $environments cr
   run_drush $environments cim -y
 
-  echo -e "Consolidating configuration (drush cex + git add):. \n"
+  printf '\n Consolidating configuration (drush cex + git add):. \n'
   # estabilize current config (do not commit not exported config assiciated to a module):
   run_drush $environments cex -y
   git add config && git commit -m "CONFIG - Consolidate current config stored in database" "$author_commit" -n  || echo "No changes to commit"
 
-  echo -e "Clearing cache. \n"
+  printf '\n Clearing cache. \n'
   run_drush $environments cr
 
-  echo -e "Re-importing configuration. \n"
+  printf '\n Re-importing configuration. \n'
   run_drush $environments cim -y
 fi
 
-echo -e "\n/// UPDATING PACKAGES ///\n"
+printf '\n/// UPDATING PACKAGES ///\n'
 composer_update_outdated $drupal_version $environments
 
-echo -e "\n/// PACKAGES UPDATED:///\n"
-echo updated_packages
+printf '\n/// PACKAGES UPDATED:///\n'
+echo -e "$updated_packages\n"
 
-echo -e "\n/// PACKAGES NOT UPDATED:///\n"
+printf '\n/// PACKAGES NOT UPDATED:///\n'
 composer show -oD
