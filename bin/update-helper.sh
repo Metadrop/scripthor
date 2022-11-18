@@ -82,7 +82,6 @@ function run_drush() {
   do
     echo "Running drush $commands on the '$environment' environment:"
     drush $environment $commands
-    echo -e "\n"
   done
 }
 
