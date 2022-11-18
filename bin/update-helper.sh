@@ -89,7 +89,7 @@ function run_drush() {
 ## Defaults:
 author_commit=""
 drush="vendor/bin/drush"
-updates="composer show -omND"
+updates="composer show -oND"
 
 # Process script options.
 #########################
