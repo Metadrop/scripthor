@@ -5,6 +5,15 @@ set -e
 environments='@self'
 updated_packages=""
 
+function header1() {
+  printf '\n// %s //\n\n' "$1"
+}
+
+function header2() {
+  printf '/// %s ///\n\n' "$1"
+}
+
+
 function show_help() {
 cat << EOF
 
@@ -33,7 +42,8 @@ function composer_update_outdated() {
   # Outdated, minor version, just name, direct dependencies:
   for c in $($updates)
     do
-      printf '\n/// UPDATING: " %s "///////////////////////////////\n' "$c"
+      echo -e "\n"
+      header2 "Updating: $c"
 
       package_version_from=$(composer show $c | grep versions | awk '{print $4}')
 
@@ -79,7 +89,8 @@ function composer_update_outdated() {
         updated_packages="$c from $package_version_from to $package_version_to\n$updated_packages"
       fi
 
-      printf '\n/// FINISHED UPDATING: " %s "///////////////////////////////\n' "$c"
+      printf '\n'
+
     done
 }
 
@@ -99,6 +110,8 @@ function run_drush() {
 author_commit=""
 drush="vendor/bin/drush"
 updates="composer show -oND"
+
+header1 "SETUP"
 
 # Process script options.
 #########################
@@ -131,37 +144,47 @@ do
 shift
 done
 
+header1 "SUMMARY"
+echo "   1. Checking outdated packages"
+echo "   2. Consolidating configuration"
+echo "   3. Updating packages"
+echo "   4. Report"
+
+header1 "1. CHECKING OUTDATED PACKAGES"
+
 # Get the packages to be updated (direct dependencies): outdated, minor version only
 packages_to_update=$($updates)
 drupal_version="$(drush status --format=list 'Drupal version' | cut -d. -f1 -)"
 
-printf '\n/// PACKAGES TO UPDATE ///\n'
 echo "$packages_to_update"
 printf '\n'
 
 # Revert any overriden config to only export new configurations provided by module updates.
 if [[ $drupal_version -gt 8 ]]; then
-  printf '\n Reverting any overriden configuration (drush cim). \n'
   run_drush $environments cr
   run_drush $environments cim -y
 
-  printf '\n Consolidating configuration (drush cex + git add):. \n'
-  # estabilize current config (do not commit not exported config assiciated to a module):
+  header1 "2. CONSOLIDATING CONFIGURATION"
+  # Estabilize current config (do not commit not exported config associated to a module):
   run_drush $environments cex -y
-  git add config && git commit -m "CONFIG - Consolidate current config stored in database" "$author_commit" -n  || echo "No changes to commit"
+  git add config && git commit -m "CONFIG - Consolidate current configuration" "$author_commit" -n  || echo "No changes to commit"
 
-  printf '\n Clearing cache. \n'
   run_drush $environments cr
 
-  printf '\n Re-importing configuration. \n'
   run_drush $environments cim -y
 fi
 
-printf '\n/// UPDATING PACKAGES ///\n'
+header1 "3. UPDATING PACKAGES"
 composer_update_outdated $drupal_version $environments
 
-printf '\n/// PACKAGES UPDATED:///\n'
-echo -e "$updated_packages\n"
+header1 "4. REPORT"
 
-printf '\n/// PACKAGES NOT UPDATED:///\n'
+if [ "$updated_packages" != "" ]
+then
+  echo -e "\n"
+  header2 "Updated Packages"
+  echo -e "$updated_packages\n"
+fi
+
+header2 "Not Updated Packages"
 composer show -oD
