@@ -6,7 +6,7 @@ environments='@self'
 updated_packages=""
 
 function header1() {
-  printf '\n// %s //\n\n' "$1"
+  printf '// %s //\n\n' "$1"
 }
 
 function header2() {
@@ -109,6 +109,7 @@ author_commit=""
 drush="vendor/bin/drush"
 updates="composer show -oND"
 
+echo -e "\n"
 header1 "SETUP"
 
 # Process script options.
@@ -142,12 +143,14 @@ do
 shift
 done
 
+echo -e "\n"
 header1 "SUMMARY"
 echo "   1. Checking outdated packages"
 echo "   2. Consolidating configuration"
 echo "   3. Updating packages"
 echo "   4. Report"
 
+echo -e "\n"
 header1 "1. CHECKING OUTDATED PACKAGES"
 
 # Get the packages to be updated (direct dependencies): outdated, minor version only
@@ -162,6 +165,7 @@ if [[ $drupal_version -gt 8 ]]; then
   run_drush $environments cr
   run_drush $environments cim -y
 
+  echo -e "\n"
   header1 "2. CONSOLIDATING CONFIGURATION"
   # Estabilize current config (do not commit not exported config associated to a module):
   run_drush $environments cex -y
@@ -172,6 +176,7 @@ if [[ $drupal_version -gt 8 ]]; then
   run_drush $environments cim -y
 fi
 
+echo -e "\n"
 header1 "3. UPDATING PACKAGES"
 composer_update_outdated $drupal_version $environments
 
