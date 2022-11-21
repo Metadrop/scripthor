@@ -162,11 +162,11 @@ printf '\n'
 
 # Revert any overriden config to only export new configurations provided by module updates.
 if [[ $drupal_version -gt 8 ]]; then
+  echo -e "\n"
+  header1 "2. CONSOLIDATING CONFIGURATION"
   run_drush $environments cr
   run_drush $environments cim -y
 
-  echo -e "\n"
-  header1 "2. CONSOLIDATING CONFIGURATION"
   # Estabilize current config (do not commit not exported config associated to a module):
   run_drush $environments cex -y
   git add config && git commit -m "CONFIG - Consolidate current configuration" "$author_commit" -n  || echo "No changes to commit"
@@ -184,7 +184,6 @@ header1 "4. REPORT"
 
 if [ "$updated_packages" != "" ]
 then
-  echo -e "\n"
   header2 "Updated Packages"
   echo -e "$updated_packages\n"
 fi
