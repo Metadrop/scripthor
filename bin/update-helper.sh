@@ -89,8 +89,6 @@ function composer_update_outdated() {
         updated_packages="$c from $package_version_from to $package_version_to\n$updated_packages"
       fi
 
-      printf '\n'
-
     done
 }
 
