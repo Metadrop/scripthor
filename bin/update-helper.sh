@@ -104,6 +104,19 @@ function run_drush() {
   done
 }
 
+function consolidate_configuration() {
+  environments=$1
+  author_commit=$2
+  IFS=',' read -a environment_list <<< $environments
+  for environment in "${environment_list[@]}"
+  do
+    printf 'Consolidating configuration on the "%s" environment:\n' "$commands" "$environment"
+    drush $environment cex -y
+    git add config && git commit -m "CONFIG - Consolidate current configuration on $environment" "$author_commit" -n  || echo "No changes to commit"
+    printf '\n'
+  done
+}
+
 ## Defaults:
 author_commit=""
 drush="vendor/bin/drush"
@@ -150,8 +163,23 @@ echo "   2. Consolidating configuration"
 echo "   3. Updating packages"
 echo "   4. Report"
 
+# Revert any overriden config to only export new configurations provided by module updates.
 echo -e "\n"
-header1 "1. CHECKING OUTDATED PACKAGES"
+header1 "1. CONSOLIDATING CONFIGURATION"
+if [[ $drupal_version -gt 8 ]]; then
+  run_drush $environments cr
+  run_drush $environments cim -y
+
+  # Estabilize current config (do not commit not exported config associated to a module):
+  consolidate_configuration "$environments" "$author_commit"
+
+  run_drush $environments cr
+
+  run_drush $environments cim -y
+fi
+
+echo -e "\n"
+header1 "2. CHECKING OUTDATED PACKAGES"
 
 # Get the packages to be updated (direct dependencies): outdated, minor version only
 packages_to_update=$($updates)
@@ -159,22 +187,6 @@ drupal_version="$(drush status --format=list 'Drupal version' | cut -d. -f1 -)"
 
 echo "$packages_to_update"
 printf '\n'
-
-# Revert any overriden config to only export new configurations provided by module updates.
-if [[ $drupal_version -gt 8 ]]; then
-  echo -e "\n"
-  header1 "2. CONSOLIDATING CONFIGURATION"
-  run_drush $environments cr
-  run_drush $environments cim -y
-
-  # Estabilize current config (do not commit not exported config associated to a module):
-  run_drush $environments cex -y
-  git add config && git commit -m "CONFIG - Consolidate current configuration" "$author_commit" -n  || echo "No changes to commit"
-
-  run_drush $environments cr
-
-  run_drush $environments cim -y
-fi
 
 echo -e "\n"
 header1 "3. UPDATING PACKAGES"
