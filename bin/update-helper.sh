@@ -158,8 +158,8 @@ done
 
 echo -e "\n"
 header1 "SUMMARY"
-echo "   1. Checking outdated packages"
-echo "   2. Consolidating configuration"
+echo "   1. Consolidating configuration"
+echo "   2. Checking outdated packages"
 echo "   3. Updating packages"
 echo "   4. Report"
 
