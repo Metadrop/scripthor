@@ -166,6 +166,7 @@ echo "   4. Report"
 # Revert any overriden config to only export new configurations provided by module updates.
 echo -e "\n"
 header1 "1. CONSOLIDATING CONFIGURATION"
+drupal_version="$(drush status --format=list 'Drupal version' | cut -d. -f1 -)"
 if [[ $drupal_version -gt 8 ]]; then
   run_drush $environments cr
   run_drush $environments cim -y
@@ -183,8 +184,6 @@ header1 "2. CHECKING OUTDATED PACKAGES"
 
 # Get the packages to be updated (direct dependencies): outdated, minor version only
 packages_to_update=$($updates)
-drupal_version="$(drush status --format=list 'Drupal version' | cut -d. -f1 -)"
-
 echo "$packages_to_update"
 printf '\n'
 
