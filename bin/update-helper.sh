@@ -111,7 +111,6 @@ function consolidate_configuration() {
   for environment in "${environment_list[@]}"
   do
     printf 'Consolidating configuration on the "%s" environment:\n' "$commands" "$environment"
-    drush $environment cr
     drush $environment cex -y
     git add config && git commit -m "CONFIG - Consolidate current configuration on $environment" "$author_commit" -n  || echo "No changes to commit"
     printf '\n'
