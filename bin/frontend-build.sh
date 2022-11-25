@@ -2,7 +2,7 @@
 set -e
 
 # This command is executed on the theme directory.
-# Check the THEME_PATH variable on the .env file.
+# Check the FRONTEND_THEME variable on the .env file.
 
 TASK=${1:-""}
 

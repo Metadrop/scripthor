@@ -35,7 +35,7 @@ get_default_value DATABASE_ONLY false
 get_default_value NO_DATABASE false
 get_default_value REFRESH_LOCAL_DUMP false
 get_default_value NPM_RUN_COMMAND dev
-get_default_value THEME_PATH ''
+get_default_value FRONTEND_THEME ''
 
 # Set the target remote Environment to download database.
 DEFAULT_SITE=$(echo $DEFAULT_DRUSH_ALIAS | cut -d . -f 1)
@@ -96,7 +96,7 @@ DEFAULT_DRUSH_ALIAS=sitename.test
 DOCKER_PROJECT_ROOT=/var/www/html
 NPM_RUN_COMMAND=dev
 
-If THEME_PATH is not defined in the .env file frontend build step will be skipped.
+If FRONTEND_THEME is not defined in the .env file frontend build step will be skipped.
 
 EOF
 }
@@ -271,7 +271,7 @@ then
 
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} deploy:hook -y
 
-  if [[ -n ${THEME_PATH} ]]
+  if [[ -n ${FRONTEND_THEME} ]]
   then
     $DOCKER_EXEC_NPM sh ${DOCKER_PROJECT_ROOT}/scripts/frontend-build.sh ${NPM_RUN_COMMAND}
   fi
