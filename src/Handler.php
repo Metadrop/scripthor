@@ -18,7 +18,7 @@ class Handler {
 
   const DIR = './scripts';
   const ENV_FILE = './.env';
-  const MAKE_FILE = './.Makefile';
+  const MAKE_FILE = './Makefile';
   const DRUSH_ALIASES_FOLDER = './drush/sites';
   const DRUSH_ALIASES_FILE_SUFFIX = '.site.yml';
 
