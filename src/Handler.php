@@ -160,7 +160,7 @@ class Handler {
     $makefile = file_get_contents(self::MAKE_FILE);
     $theme_name = str_replace('-', '_', $project_name);
     $makefile = str_replace('FRONTEND_THEME ?= "example"', 'FRONTEND_THEME ?= "' . $theme_name . '"', $makefile);
-    file_put_contents(self::MAKE_FILE, $env);
+    file_put_contents(self::MAKE_FILE, $makefile);
 
 
     $this->io->write('Setting up Drush aliases file');
