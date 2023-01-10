@@ -36,6 +36,7 @@ get_default_value NO_DATABASE false
 get_default_value REFRESH_LOCAL_DUMP false
 get_default_value NPM_RUN_COMMAND dev
 get_default_value FRONTEND_THEME ''
+get_default_value FRONTEND_THEMES_PATH ''
 
 # Set the target remote Environment to download database.
 DEFAULT_SITE=$(echo $DEFAULT_DRUSH_ALIAS | cut -d . -f 1)
@@ -271,9 +272,9 @@ then
 
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} deploy:hook -y
 
-  if [[ -n ${FRONTEND_THEME} ]]
+  if [[ -n ${FRONTEND_THEME} ]] && [[ -n ${FRONTEND_THEMES_PATH} ]]
   then
-    $DOCKER_EXEC_NPM sh ${DOCKER_PROJECT_ROOT}/scripts/frontend-build.sh ${NPM_RUN_COMMAND}
+    docker-compose exec -w ${FRONTEND_THEMES_PATH}/${FRONTEND_THEME} node sh ${DOCKER_PROJECT_ROOT}/scripts/frontend-build.sh ${NPM_RUN_COMMAND}
   fi
 
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} cr
