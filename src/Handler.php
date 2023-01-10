@@ -150,15 +150,16 @@ class Handler {
   protected function setConfFiles() {
     $current_dir = basename(getcwd());
     $project_name = $this->io->ask('Please enter the project name (default to ' . $current_dir . '): ', $current_dir);
+    $theme_name = str_replace('-', '_', $project_name);
 
 
     $this->io->write('Setting up .env file');
     $env = file_get_contents(self::ENV_FILE . '.example');
+    $env = str_replace('FRONTEND_THEME=example', 'FRONTEND_THEME=' . $theme_name, $env);
     $env = str_replace('example', $project_name, $env);
     file_put_contents(self::ENV_FILE, $env);
 
     $makefile = file_get_contents(self::MAKE_FILE);
-    $theme_name = str_replace('-', '_', $project_name);
     $makefile = str_replace('FRONTEND_THEME ?= "example"', 'FRONTEND_THEME ?= "' . $theme_name . '"', $makefile);
     file_put_contents(self::MAKE_FILE, $makefile);
 
