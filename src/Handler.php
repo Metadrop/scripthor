@@ -18,6 +18,7 @@ class Handler {
 
   const DIR = './scripts';
   const ENV_FILE = './.env';
+  const MAKE_FILE = './Makefile';
   const DRUSH_ALIASES_FOLDER = './drush/sites';
   const DRUSH_ALIASES_FILE_SUFFIX = '.site.yml';
 
@@ -149,16 +150,17 @@ class Handler {
   protected function setConfFiles() {
     $current_dir = basename(getcwd());
     $project_name = $this->io->ask('Please enter the project name (default to ' . $current_dir . '): ', $current_dir);
+    $theme_name = str_replace('-', '_', $project_name);
 
 
     $this->io->write('Setting up .env file');
     $env = file_get_contents(self::ENV_FILE . '.example');
     $env = str_replace('example', $project_name, $env);
-
-    $theme_name = str_replace('-', '_', $project_name);
-    $env = str_replace('THEME_PATH=/var/www/html/web/themes/custom/' . $project_name, 'THEME_PATH=/var/www/html/web/themes/custom/' . $theme_name, $env);
     file_put_contents(self::ENV_FILE, $env);
 
+    $makefile = file_get_contents(self::MAKE_FILE);
+    $makefile = str_replace('frontend_target ?= "example"', 'frontend_target ?= "' . $theme_name . '"', $makefile);
+    file_put_contents(self::MAKE_FILE, $makefile);
 
     $this->io->write('Setting up Drush aliases file');
     $source_filename = self::DRUSH_ALIASES_FOLDER . "/sitename" . self::DRUSH_ALIASES_FILE_SUFFIX . ".example";
