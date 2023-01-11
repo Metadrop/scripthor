@@ -35,8 +35,6 @@ get_default_value DATABASE_ONLY false
 get_default_value NO_DATABASE false
 get_default_value REFRESH_LOCAL_DUMP false
 get_default_value NPM_RUN_COMMAND dev
-get_default_value FRONTEND_THEME ''
-get_default_value FRONTEND_THEMES_PATH ''
 
 # Set the target remote Environment to download database.
 DEFAULT_SITE=$(echo $DEFAULT_DRUSH_ALIAS | cut -d . -f 1)
@@ -50,6 +48,7 @@ DOCKER_EXEC_TTY_PHP="docker-compose exec -T php"
 DOCKER_EXEC_NPM="docker-compose exec node"
 COMPOSER_EXEC="docker-compose exec php composer"
 RM_EXEC="rm"
+MAKE_EXEC="make"
 
 # Having a month based db backup filename ensures the database is refreshed at least every month.
 BACKUP_FILE_NAME_TEMPLATE=db-$(date +%Y-%m)
@@ -209,6 +208,7 @@ then
     COMPOSER_EXEC="echo $COMPOSER_EXEC"
     RM_EXEC="echo $RM_EXEC"
     DOCKER_EXEC_NPM="echo $DOCKER_EXEC_NPM"
+    MAKE_EXEC="echo $MAKE_EXEC"
 fi
 
 if [ $SITE = $DEFAULT_SITE ]
@@ -272,10 +272,7 @@ then
 
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} deploy:hook -y
 
-  if [[ -n ${FRONTEND_THEME} ]] && [[ -n ${FRONTEND_THEMES_PATH} ]]
-  then
-    docker-compose exec -w ${FRONTEND_THEMES_PATH}/${FRONTEND_THEME} node sh ${DOCKER_PROJECT_ROOT}/scripts/frontend-build.sh ${NPM_RUN_COMMAND}
-  fi
+  $MAKE_EXEC frontend ${NPM_RUN_COMMAND}
 
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} cr
 
