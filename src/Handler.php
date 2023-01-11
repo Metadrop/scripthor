@@ -155,13 +155,9 @@ class Handler {
 
     $this->io->write('Setting up .env file');
     $env = file_get_contents(self::ENV_FILE . '.example');
-    $env = str_replace('FRONTEND_THEME=example', 'FRONTEND_THEME=' . $theme_name, $env);
     $env = str_replace('example', $project_name, $env);
     file_put_contents(self::ENV_FILE, $env);
 
-    $makefile = file_get_contents(self::MAKE_FILE);
-    $makefile = str_replace('FRONTEND_THEME ?= "example"', 'FRONTEND_THEME ?= "' . $theme_name . '"', $makefile);
-    file_put_contents(self::MAKE_FILE, $makefile);
 
 
     $this->io->write('Setting up Drush aliases file');
