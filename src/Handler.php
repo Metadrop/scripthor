@@ -158,7 +158,9 @@ class Handler {
     $env = str_replace('example', $project_name, $env);
     file_put_contents(self::ENV_FILE, $env);
 
-
+    $makefile = file_get_contents(self::MAKE_FILE);
+    $makefile = str_replace('frontend_target ?= "example"', 'frontend_target ?= "' . $theme_name . '"', $makefile);
+    file_put_contents(self::MAKE_FILE, $makefile);
 
     $this->io->write('Setting up Drush aliases file');
     $source_filename = self::DRUSH_ALIASES_FOLDER . "/sitename" . self::DRUSH_ALIASES_FILE_SUFFIX . ".example";
