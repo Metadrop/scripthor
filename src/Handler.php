@@ -1,6 +1,6 @@
 <?php
 
-namespace Metadrop;
+namespace Metadrop\scripthor;
 
 use Composer\Composer;
 use Composer\IO\IOInterface;
@@ -18,6 +18,9 @@ class Handler {
 
   const DIR = './scripts';
   const ENV_FILE = './.env';
+  const MAKE_FILE = './Makefile';
+  const DRUSH_ALIASES_FOLDER = './drush/sites';
+  const DRUSH_ALIASES_FILE_SUFFIX = '.site.yml';
 
   const TARGET_DIR = '../vendor/metadrop/scripthor/bin/';
 
@@ -26,6 +29,8 @@ class Handler {
     'copy-content-config-entity-to-module.sh',
     'reload-local.sh',
     'setup-traefik-port.sh',
+    'backup.sh',
+    'update-helper.sh',
   ];
 
   /**
@@ -41,6 +46,13 @@ class Handler {
    * @var \Composer\IO\IOInterface
    */
   protected $io;
+
+  /**
+   * Wether the user wants to initialize a Git repository or not.
+   *
+   * @var bool
+   */
+  protected $initializeGit;
 
   /**
    * Handler constructor.
@@ -62,8 +74,6 @@ class Handler {
    *   Error when not created
    */
   public function createSymlinks() {
-    $this->io->write('Scripthor start.');
-
     if ($this->createScriptDir()) {
       $this->createScriptLink();
     }
@@ -71,7 +81,6 @@ class Handler {
       $this->io->writeError('./scripts directory not created.');
       throw new \Exception('./scripts directory not created.');
     }
-    $this->io->write('Scripthor finished.');
   }
 
   /**
@@ -103,9 +112,6 @@ class Handler {
         symlink(self::TARGET_DIR . $file, $script);
         $this->io->write('Script created: ' . $file);
       }
-      else {
-        $this->io->write('Script exists: ' . $file);
-      }
     }
   }
 
@@ -113,7 +119,7 @@ class Handler {
    * Assistant on create project.
    */
   public function createProjectAssistant() {
-    $project_name = $this->setUpEnvFile();
+    $project_name = $this->setConfFiles();
     $theme_name = str_replace('-', '_', $project_name);
     $this->setUpGit();
     $this->startDocker($theme_name);
@@ -139,28 +145,51 @@ class Handler {
   }
 
   /**
-   * Helper method to setup env file.
+   * Helper method to setup several configuration files.
    */
-  protected function setUpEnvFile() {
+  protected function setConfFiles() {
     $current_dir = basename(getcwd());
     $project_name = $this->io->ask('Please enter the project name (default to ' . $current_dir . '): ', $current_dir);
+    $theme_name = str_replace('-', '_', $project_name);
+
+
     $this->io->write('Setting up .env file');
     $env = file_get_contents(self::ENV_FILE . '.example');
     $env = str_replace('example', $project_name, $env);
-
-    $theme_name = str_replace('-', '_', $project_name);
-    $env = str_replace('THEME_PATH=/var/www/html/web/themes/custom/' . $project_name, 'THEME_PATH=/var/www/html/web/themes/custom/' . $theme_name, $env);
     file_put_contents(self::ENV_FILE, $env);
 
+    $makefile = file_get_contents(self::MAKE_FILE);
+    $makefile = str_replace('frontend_target ?= "example"', 'frontend_target ?= "' . $theme_name . '"', $makefile);
+    file_put_contents(self::MAKE_FILE, $makefile);
+
+    $this->io->write('Setting up Drush aliases file');
+    $source_filename = self::DRUSH_ALIASES_FOLDER . "/sitename" . self::DRUSH_ALIASES_FILE_SUFFIX . ".example";
+    $aliases = file_get_contents($source_filename);
+    $aliases = str_replace('sitename', $project_name, $aliases);
+    file_put_contents(self::DRUSH_ALIASES_FOLDER . "/$project_name" . self::DRUSH_ALIASES_FILE_SUFFIX, $aliases);
+
+    $this->io->write('Setting up behat.yml file');
     $behat_yml = file_get_contents('./behat.yml');
     $behat_yml = str_replace('example', $project_name, $behat_yml);
     file_put_contents('./behat.yml', $behat_yml);
 
+    $this->io->write('Setting up BackstopJS\' cookies.json file');
     $backstop = file_get_contents('./tests/backstopjs/backstop_data/engine_scripts/cookies.json');
     $backstop = str_replace('example', $project_name, $backstop);
     file_put_contents('./tests/backstopjs/backstop_data/engine_scripts/cookies.json', $backstop);
 
+    $this->io->write('Setting up docker-compose.override.yml');
     copy('./docker-compose.override.yml.dist', './docker-compose.override.yml');
+
+    $this->io->write('Setting up phpunit.xml');
+    copy('./phpunit.xml.dist', './phpunit.xml');
+
+    $this->io->write('Setting up phpcs.xml');
+    copy('./phpcs.xml.dist', './phpcs.xml.dist');
+
+    $this->io->write('Setting up phpmd.xml');
+    copy('./phpmd.xml.dist', './phpmd.xml');
+
 
     return $project_name;
   }
@@ -169,7 +198,10 @@ class Handler {
    * Setup git.
    */
   protected function setUpGit() {
-    if ($this->io->askConfirmation('Do you want to initialize a git repository for your new project? (Y/n) ')) {
+
+    $this->initializeGit = $this->io->askConfirmation('Do you want to initialize a git repository for your new project? (Y/n) ');
+
+    if ($this->initializeGit) {
       system('git init');
       system('git checkout -b dev');
     }
@@ -202,7 +234,8 @@ class Handler {
       $drush_yml = file_get_contents('./web/sites/default/example.local.drush.yml');
       $drush_yml = str_replace('example', $project_name, $drush_yml);
       file_put_contents('./web/sites/default/local.drush.yml', $drush_yml);
-      system('docker-compose exec php drush si');
+      system('docker-compose exec php drush si minimal');
+      system('docker-compose exec php drush cr');
     }
   }
 
@@ -225,14 +258,20 @@ class Handler {
    */
   protected function assistantSuccess($project_name) {
     $port = shell_exec('docker-compose port traefik 80 | cut -d: -f2');
-    system('git add .');
-    system('git commit -m "Initial commit" -n');
+
+    if ($this->initializeGit) {
+        system('git add .');
+        system('git commit -m "Initial commit" -n');
+    }
+
     $this->io->write("\n\n" . '***********************'
-      . "\n" . '    CONGRATULATIONS!'
-      . "\n". '***********************'
-      . "\n" . 'Your new project is up and running on the following url: http://' . $project_name . '.docker.localhost:' . $port);
+      . "\n    CONGRATULATIONS!"
+      . "\n***********************"
+      . "\nYour new project is up and running on the following url: http://$project_name.docker.localhost:$port"
+      . "\nRun `make info` for more URLs to other provided tools\n");
     $this->io->write('Click on the following link to start building your site:');
     system('docker-compose exec php drush uli');
+    $this->io->write("\n");
   }
 
 }

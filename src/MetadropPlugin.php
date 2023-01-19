@@ -1,6 +1,6 @@
 <?php
 
-namespace Metadrop;
+namespace Metadrop\scripthor;
 
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
@@ -52,7 +52,7 @@ class MetadropPlugin implements PluginInterface, EventSubscriberInterface, Capab
    * {@inheritdoc}
    */
   public function getCapabilities() {
-    return ['Composer\Plugin\Capability\CommandProvider' => 'Metadrop\CommandProvider'];
+    return ['Composer\Plugin\Capability\CommandProvider' => 'Metadrop\scripthor\CommandProvider'];
   }
 
   /**
@@ -75,7 +75,6 @@ class MetadropPlugin implements PluginInterface, EventSubscriberInterface, Capab
    * @throws \Exception
    */
   public function scripthorInstaller(Event $event) {
-    $this->io->write('scripthorInstaller: ' . $event->getName());
     $this->handler->createSymlinks();
   }
 
@@ -86,7 +85,6 @@ class MetadropPlugin implements PluginInterface, EventSubscriberInterface, Capab
    *   The composer event.
    */
   public function onCreateProject(Event $event) {
-    $this->io->write('scripthorInstaller: ' . $event->getName());
     $this->handler->createProjectAssistant();
   }
 

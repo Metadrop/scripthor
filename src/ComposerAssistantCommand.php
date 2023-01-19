@@ -1,6 +1,6 @@
 <?php
 
-namespace Metadrop;
+namespace Metadrop\scripthor;
 
 use Composer\Command\BaseCommand;
 use Symfony\Component\Console\Input\InputInterface;

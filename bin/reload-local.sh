@@ -14,12 +14,27 @@
 #  - cache rebuild
 #  - display a one time user login link
 #######################################
-
 set -e
 
+function get_default_value() {
+  VARNAME=$1
+  DEFAULT_VALUE=$2
+
+  ENV_VALUE=$(egrep ${VARNAME} ${PROJECT_ROOT}/.env | sed s/${VARNAME}=//)
+  eval "${VARNAME}=${ENV_VALUE:-$DEFAULT_VALUE}"
+}
+
+
 PROJECT_ROOT="./"
-DOCKER_PROJECT_ROOT=$(egrep DOCKER_PROJECT_ROOT ${PROJECT_ROOT}/.env | sed s/DOCKER_PROJECT_ROOT=//)
-DEFAULT_DRUSH_ALIAS=$(egrep DEFAULT_DRUSH_ALIAS ${PROJECT_ROOT}/.env | sed s/DEFAULT_DRUSH_ALIAS=//)
+
+# Default flags values.
+get_default_value DEFAULT_DRUSH_ALIAS sitename.test
+get_default_value DOCKER_PROJECT_ROOT /var/www/html
+get_default_value NO_ACTION false
+get_default_value DATABASE_ONLY false
+get_default_value NO_DATABASE false
+get_default_value REFRESH_LOCAL_DUMP false
+get_default_value NPM_RUN_COMMAND dev
 
 # Set the target remote Environment to download database.
 DEFAULT_SITE=$(echo $DEFAULT_DRUSH_ALIAS | cut -d . -f 1)
@@ -31,19 +46,12 @@ SITE=$DEFAULT_SITE
 DOCKER_EXEC_PHP="docker-compose exec php"
 DOCKER_EXEC_TTY_PHP="docker-compose exec -T php"
 DOCKER_EXEC_NPM="docker-compose exec node"
-COMPOSER_EXEC="composer"
+COMPOSER_EXEC="docker-compose exec php composer"
 RM_EXEC="rm"
-NPM_RUN_COMMAND=$(egrep NPM_RUN_COMMAND ${PROJECT_ROOT}/.env | sed s/NPM_RUN_COMMAND=//)
-
-# Default flags values.
-NO_ACTION=false
-DATABASE_ONLY=false
-NO_DATABASE=false
-REFRESH_LOCAL_DUMP=false
+MAKE_EXEC="make"
 
 # Having a month based db backup filename ensures the database is refreshed at least every month.
 BACKUP_FILE_NAME_TEMPLATE=db-$(date +%Y-%m)
-
 
 function show_help() {
 cat << EOF
@@ -76,6 +84,20 @@ Usage: ${0##*/} [-d|--database-only] [-e|--env=(ENVIRONMENT_NAME)] [-s|--site=(S
 
   -n
   --no-action       Show actions that would be done but do not execute any command. Useful for debugging purposes.
+
+You can add default values to most of the parameters by editing the .env file.
+Here is a relation of the supported variables and their default values
+
+NO_ACTION=false
+DATABASE_ONLY=false
+NO_DATABASE=false
+REFRESH_LOCAL_DUMP=false
+DEFAULT_DRUSH_ALIAS=sitename.test
+DOCKER_PROJECT_ROOT=/var/www/html
+NPM_RUN_COMMAND=dev
+
+If FRONTEND_THEME is not defined in the .env file frontend build step will be skipped.
+
 EOF
 }
 
@@ -186,6 +208,7 @@ then
     COMPOSER_EXEC="echo $COMPOSER_EXEC"
     RM_EXEC="echo $RM_EXEC"
     DOCKER_EXEC_NPM="echo $DOCKER_EXEC_NPM"
+    MAKE_EXEC="echo $MAKE_EXEC"
 fi
 
 if [ $SITE = $DEFAULT_SITE ]
@@ -204,8 +227,8 @@ cd ${PROJECT_ROOT}
 
 if [[ ${DATABASE_ONLY} = false ]]
 then
-  # Install dependencies and compile css.
-  $COMPOSER_EXEC install --ignore-platform-reqs
+  # Install dependencies.
+  $COMPOSER_EXEC install
 
 fi
 
@@ -245,11 +268,11 @@ then
   # Execute updates and import configuration.
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} updb -y
 
-  $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} cim sync -y
+  $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} cim -y
 
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} deploy:hook -y
 
-  $DOCKER_EXEC_NPM sh ${DOCKER_PROJECT_ROOT}/scripts/frontend-build.sh ${NPM_RUN_COMMAND}
+  $MAKE_EXEC frontend ${NPM_RUN_COMMAND}
 
   $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} cr
 

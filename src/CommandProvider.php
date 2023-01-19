@@ -1,6 +1,6 @@
 <?php
 
-namespace Metadrop;
+namespace Metadrop\scripthor;
 
 use Composer\Plugin\Capability\CommandProvider as CommandProviderCapability;
 
