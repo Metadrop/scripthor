@@ -220,8 +220,8 @@ fi
 
 REMOTE_ALIAS="$SITE.$REMOTE_ENVIRONMENT"
 
-BACKUP_FILE_NAME=${BACKUP_FILE_NAME_TEMPLATE}.${SITE}.${REMOTE_ENVIRONMENT}.sql
-LOCAL_FILE=${PROJECT_ROOT}tmp/${BACKUP_FILE_NAME}.gz
+BACKUP_FILE_NAME=${BACKUP_FILE_NAME_TEMPLATE}.${SITE}.${REMOTE_ENVIRONMENT}.sql.gz
+LOCAL_FILE=${PROJECT_ROOT}tmp/${BACKUP_FILE_NAME}
 
 cd ${PROJECT_ROOT}
 
@@ -284,7 +284,7 @@ fi
 if [ ${REFRESH_LOCAL_DUMP} = true ] || [ ! -f $LOCAL_FILE ]
   then
     echo "Updating local dump."
-    $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} sql:dump --gzip --result-file=../$LOCAL_FILE
+    $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} sql:dump --gzip --result-file=../$(echo $LOCAL_FILE | sed 's/\.gz//')
 fi
 
 cat << EOF
