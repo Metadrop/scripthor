@@ -257,7 +257,7 @@ then
     fi
   else
     echo "Loading database from local file:  ${LOCAL_FILE}"
-    cat ${LOCAL_FILE} | $DOCKER_EXEC_TTY_PHP  drush @${LOCAL_ALIAS} sql-cli
+    zcat ${LOCAL_FILE} | $DOCKER_EXEC_TTY_PHP  drush @${LOCAL_ALIAS} sql-cli
   fi
 
 fi
