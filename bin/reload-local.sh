@@ -87,7 +87,7 @@ Usage: ${0##*/} [-d|--database-only] [-e|--env=(ENVIRONMENT_NAME)] [-s|--site=(S
   --no-action       Show actions that would be done but do not execute any command. Useful for debugging purposes.
 
   -u
-  --uncompressed   Saves and tries to load the uncompressed backup
+  --uncompressed    Saves and tries to load the uncompressed backup
 
 You can add default values to most of the parameters by editing the .env file.
 Here is a relation of the supported variables and their default values
