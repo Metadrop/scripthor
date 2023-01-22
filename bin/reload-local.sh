@@ -303,7 +303,7 @@ fi
 if [ ${REFRESH_LOCAL_DUMP} = true ] || [ ! -f $LOCAL_FILE ]
   then
     echo "Updating local dump."
-    if [[ ${UNCOMPRESSED} = FALSE ]]
+    if [[ ${UNCOMPRESSED} = false ]]
     then
       $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} sql:dump --gzip --result-file=../${LOCAL_FILE%.*}
     else
