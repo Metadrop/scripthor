@@ -156,7 +156,7 @@ do
     -r|--refresh)
         REFRESH_LOCAL_DUMP=true
         ;;
-    -u|--uncrompressed)
+    -u|--uncompressed)
         UNCOMPRESSED=true
         ;;
     -n|--no-action)
