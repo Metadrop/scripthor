@@ -273,9 +273,9 @@ then
     echo "Loading database from local file:  ${LOCAL_FILE}"
     if [[ ${UNCOMPRESSED} = false ]]
     then
-      zcat ${LOCAL_FILE} | $DOCKER_EXEC_TTY_PHP  drush @${LOCAL_ALIAS} sql-cli
+      zcat ${LOCAL_FILE} | $DOCKER_EXEC_TTY_PHP drush @${LOCAL_ALIAS} sql-cli
     else
-      cat ${LOCAL_FILE} | $DOCKER_EXEC_TTY_PHP  drush @${LOCAL_ALIAS} sql-cli
+      cat ${LOCAL_FILE} | $DOCKER_EXEC_TTY_PHP drush @${LOCAL_ALIAS} sql-cli
     fi
   fi
 
