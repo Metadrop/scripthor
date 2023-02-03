@@ -35,6 +35,7 @@ get_default_value DATABASE_ONLY false
 get_default_value NO_DATABASE false
 get_default_value REFRESH_LOCAL_DUMP false
 get_default_value NPM_RUN_COMMAND dev
+get_default_value UNCOMPRESSED false
 
 # Set the target remote Environment to download database.
 DEFAULT_SITE=$(echo $DEFAULT_DRUSH_ALIAS | cut -d . -f 1)
@@ -85,6 +86,9 @@ Usage: ${0##*/} [-d|--database-only] [-e|--env=(ENVIRONMENT_NAME)] [-s|--site=(S
   -n
   --no-action       Show actions that would be done but do not execute any command. Useful for debugging purposes.
 
+  -u
+  --uncompressed    Saves and tries to load the uncompressed backup
+
 You can add default values to most of the parameters by editing the .env file.
 Here is a relation of the supported variables and their default values
 
@@ -95,6 +99,7 @@ REFRESH_LOCAL_DUMP=false
 DEFAULT_DRUSH_ALIAS=sitename.test
 DOCKER_PROJECT_ROOT=/var/www/html
 NPM_RUN_COMMAND=dev
+UNCOMPRESSED=false
 
 If FRONTEND_THEME is not defined in the .env file frontend build step will be skipped.
 
@@ -150,6 +155,9 @@ do
         ;;
     -r|--refresh)
         REFRESH_LOCAL_DUMP=true
+        ;;
+    -u|--uncompressed)
+        UNCOMPRESSED=true
         ;;
     -n|--no-action)
         NO_ACTION=true
@@ -220,7 +228,13 @@ fi
 
 REMOTE_ALIAS="$SITE.$REMOTE_ENVIRONMENT"
 
-BACKUP_FILE_NAME=${BACKUP_FILE_NAME_TEMPLATE}.${SITE}.${REMOTE_ENVIRONMENT}.sql
+if [[ ${UNCOMPRESSED} = false ]]
+then
+  BACKUP_FILE_NAME=${BACKUP_FILE_NAME_TEMPLATE}.${SITE}.${REMOTE_ENVIRONMENT}.sql.gz
+else
+  BACKUP_FILE_NAME=${BACKUP_FILE_NAME_TEMPLATE}.${SITE}.${REMOTE_ENVIRONMENT}.sql
+fi
+
 LOCAL_FILE=${PROJECT_ROOT}tmp/${BACKUP_FILE_NAME}
 
 cd ${PROJECT_ROOT}
@@ -257,7 +271,12 @@ then
     fi
   else
     echo "Loading database from local file:  ${LOCAL_FILE}"
-    cat ${LOCAL_FILE} | $DOCKER_EXEC_TTY_PHP  drush @${LOCAL_ALIAS} sql-cli
+    if [[ ${UNCOMPRESSED} = false ]]
+    then
+      zcat ${LOCAL_FILE} | $DOCKER_EXEC_TTY_PHP drush @${LOCAL_ALIAS} sql-cli
+    else
+      cat ${LOCAL_FILE} | $DOCKER_EXEC_TTY_PHP drush @${LOCAL_ALIAS} sql-cli
+    fi
   fi
 
 fi
@@ -284,7 +303,12 @@ fi
 if [ ${REFRESH_LOCAL_DUMP} = true ] || [ ! -f $LOCAL_FILE ]
   then
     echo "Updating local dump."
-    $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} sql:dump --result-file=../$LOCAL_FILE
+    if [[ ${UNCOMPRESSED} = false ]]
+    then
+      $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} sql:dump --gzip --result-file=../${LOCAL_FILE%.*}
+    else
+      $DOCKER_EXEC_PHP drush @${LOCAL_ALIAS} sql:dump --result-file=../${LOCAL_FILE}
+    fi
 fi
 
 cat << EOF
