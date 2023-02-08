@@ -21,7 +21,7 @@ Update composer packages.
 
 Update includes:
   - Commit current configuration not exported (Drupal +8).
-  - Identify updatable composer packages (outdated + minor versions)
+  - Identify updatable composer packages (outdated)
   - For each package try to update and commit it (recovers previous state if fails)
 
 Usage: ${0##*/} [--author=Name <user@example.com>]
@@ -45,7 +45,7 @@ function composer_update_outdated() {
       echo -e "\n"
       header2 "Updating: $c"
 
-      package_version_from=$(composer show $c | grep versions | awk '{print $4}')
+      package_version_from=$(composer show --locked $c | grep versions | awk '{print $4}')
 
       set +e
       composer update $c --with-dependencies
@@ -58,7 +58,7 @@ function composer_update_outdated() {
       fi
       set -e
 
-      package_version_to=$(composer show $c | grep versions | awk '{print $4}')
+      package_version_to=$(composer show --locked $c | grep versions | awk '{print $4}')
 
       # Composer files:
       git add composer.json composer.lock
@@ -120,7 +120,7 @@ function consolidate_configuration() {
 ## Defaults:
 author_commit=""
 drush="vendor/bin/drush"
-updates="composer show -oND"
+updates="composer show --locked --outdated --name-only"
 
 echo -e "\n"
 header1 "SETUP"
@@ -199,5 +199,8 @@ then
   echo -e "$updated_packages\n"
 fi
 
-header2 "Not Updated Packages"
-composer show -oD
+header2 "Not Updated Packages (Direct)"
+composer show --locked --outdated --direct
+
+header2 "Not Updated Packages (ALL)"
+composer show --locked --outdated
