@@ -63,23 +63,32 @@ function composer_update_outdated() {
       # Composer files:
       git add composer.json composer.lock
 
-      # Drupal scaffold files:
-      git add web
+      package_type=$(composer show $c | grep ^type | awk '{print $3}')
+      printf "Package type: $package_type \n"
 
-      # Clear caches to prevent problems with updated code.
-      if [[ $drupal_version -eq 7 ]]; then
-        run_drush "$environments" cc all
-      fi
-      if [[ $drupal_version -gt 8 ]]; then
-        run_drush "$environments" cr
-      fi
+      # Drupal specific actions:
+      if [[ "$package_type" =~ .*"drupal".* ]]; then
 
-      run_drush "$environments" updb -y
+        # Drupal scaffold files:
+        git add web
 
-      if [[ $drupal_version -gt 8 ]]; then
-        printf 'Exporting any new configuration: \n'
-        run_drush "$environments" cex -y
-        git add config
+        # Clear caches to prevent problems with updated code.
+        if [[ $drupal_version -eq 7 ]]; then
+          run_drush "$environments" cc all
+        fi
+
+        if [[ $drupal_version -gt 8 ]]; then
+          run_drush "$environments" cr
+        fi
+
+        run_drush "$environments" updb -y
+
+        if [[ $drupal_version -gt 8 ]]; then
+          printf 'Exporting any new configuration: \n'
+          run_drush "$environments" cex -y
+          git add config
+        fi
+
       fi
 
       git commit -m "UPDATE - $c" "$author_commit" -n || printf "No changes to commit\n"
