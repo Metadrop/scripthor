@@ -38,17 +38,18 @@ EOF
 function composer_update_outdated() {
   drupal_version=$1
   environments=$2
+  packages_to_update=$3
 
   # Outdated, minor version, just name, direct dependencies:
-  for c in $($updates)
+  for package in $packages_to_update
     do
       echo -e "\n"
-      header2 "Updating: $c"
+      header2 "Updating: $package"
 
-      package_version_from=$(composer show --locked $c | grep versions | awk '{print $4}')
+      package_version_from=$(composer show --locked $package | grep versions | awk '{print $4}')
 
       set +e
-      composer update $c --with-dependencies
+      composer update $package --with-dependencies
       if [[ $? -ne 0 ]]; then
         printf '\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
         printf 'Updating package FAILED: recovering previous state.'
@@ -58,12 +59,12 @@ function composer_update_outdated() {
       fi
       set -e
 
-      package_version_to=$(composer show --locked $c | grep versions | awk '{print $4}')
+      package_version_to=$(composer show --locked $package | grep versions | awk '{print $4}')
 
       # Composer files:
       git add composer.json composer.lock
 
-      package_type=$(composer show $c | grep ^type | awk '{print $3}')
+      package_type=$(composer show $package | grep ^type | awk '{print $3}')
       printf "Package type: $package_type \n"
 
       # Drupal specific actions:
@@ -129,7 +130,8 @@ function consolidate_configuration() {
 ## Defaults:
 author_commit=""
 drush="vendor/bin/drush"
-updates="composer show --locked --direct --name-only"
+update_mode="all"
+update_no_dev=""
 
 echo -e "\n"
 header1 "SETUP"
@@ -150,7 +152,11 @@ do
         ;;
     --no-dev)
         printf "Updates without require-dev packages.\n"
-        updates+=" --no-dev"
+        update_no_dev="--no-dev"
+        ;;
+    --security)
+        printf "Security packages (with dependencies).\n"
+        update_mode="security"
         ;;
     --envs=*)
         environments="${i#*=}"
@@ -168,7 +174,7 @@ done
 echo -e "\n"
 header1 "SUMMARY"
 echo "   1. Consolidating configuration"
-echo "   2. Checking outdated packages"
+echo "   2. Checking packages"
 echo "   3. Updating packages"
 echo "   4. Report"
 
@@ -191,14 +197,30 @@ fi
 echo -e "\n"
 header1 "2. CHECKING OUTDATED PACKAGES"
 
-# Get the packages to be updated (direct dependencies): outdated, minor version only
-packages_to_update=$($updates)
+# Get the packages to be updated:
+if [ "$update_mode" = "security" ] ; then
+  packages_to_update=$(composer audit --locked $update_no_dev --format plain 2>&1 | grep ^Package | cut -f2 -d: | sort -u)
+
+  set +e
+  drupal_security_packages=$(./vendor/bin/drush pm:security --fields=name --format=list 2>/dev/null)
+  set -e
+
+  packages_to_update="$packages_to_update
+$drupal_security_packages"
+
+else
+  packages_to_update=$(composer show --locked --direct --name-only $update_no_dev 2>/dev/null)
+fi
+
+packages_to_update=${packages_to_update// /}
+packages_to_update=$(echo "$packages_to_update" | grep -E -i "^([A-Z0-9_-]*\/[A-Z0-9_-]*)")
+
 echo "$packages_to_update"
 printf '\n'
 
 echo -e "\n"
 header1 "3. UPDATING PACKAGES"
-composer_update_outdated $drupal_version $environments
+composer_update_outdated "$drupal_version" "$environments" "$packages_to_update"
 
 header1 "4. REPORT"
 
