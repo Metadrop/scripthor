@@ -63,7 +63,7 @@ function composer_update_outdated() {
       # Composer files:
       git add composer.json composer.lock
 
-      package_type=$(composer show $c | grep type | awk '{print $3}')
+      package_type=$(composer show $c | grep ^type | awk '{print $3}')
       printf "Package type: $package_type \n"
 
       # Drupal specific actions:
