@@ -200,10 +200,19 @@ header1 "2. CHECKING OUTDATED PACKAGES"
 # Get the packages to be updated:
 if [ "$update_mode" = "security" ] ; then
   packages_to_update=$(composer audit --locked $update_no_dev --format plain 2>&1 | grep ^Package | cut -f2 -d: | sort -u)
+
+  set +e
+  drupal_security_packages=$(./vendor/bin/drush pm:security --fields=name --format=list 2>/dev/null)
+  set -e
+
+  packages_to_update="$packages_to_update
+$drupal_security_packages"
+
 else
   packages_to_update=$(composer show --locked --direct --name-only $update_no_dev 2>/dev/null)
 fi
 
+packages_to_update=${packages_to_update// /}
 packages_to_update=$(echo "$packages_to_update" | grep -E -i "^([A-Z0-9_-]*\/[A-Z0-9_-]*)")
 
 echo "$packages_to_update"
