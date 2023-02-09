@@ -92,7 +92,7 @@ function composer_update_outdated() {
 
       fi
 
-      git commit -m "UPDATE - $c" "$author_commit" -n || printf "No changes to commit\n"
+      git commit -m "UPDATE - $package" "$author_commit" -n || printf "No changes to commit\n"
 
       if [ "$package_version_from" != "$package_version_to" ]
       then
