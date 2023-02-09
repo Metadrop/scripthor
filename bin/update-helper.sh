@@ -120,7 +120,7 @@ function consolidate_configuration() {
 ## Defaults:
 author_commit=""
 drush="vendor/bin/drush"
-updates="composer show --locked --outdated --name-only"
+updates="composer show --locked --direct --name-only"
 
 echo -e "\n"
 header1 "SETUP"
