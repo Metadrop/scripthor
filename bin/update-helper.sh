@@ -73,7 +73,7 @@ function composer_update_outdated() {
       printf "Package type: $package_type \n"
 
       # Drupal specific actions:
-      if [[ "$package_type" =~ .*"drupal".* ]]; then
+      if [[ "$package_type" != "drupal-library" ]] && [[ "$package_type" =~ "drupal".* ]]; then
 
         # Drupal scaffold files:
         git add web
