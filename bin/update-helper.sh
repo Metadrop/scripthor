@@ -59,6 +59,11 @@ function composer_update_outdated() {
       fi
       set -e
 
+      git_has_changes="$(git status --porcelain | wc -l)"
+      if [ "$git_has_changes" -eq 0 ]; then
+        continue
+      fi
+
       package_version_to=$(composer show --locked $package | grep versions | awk '{print $4}')
 
       # Composer files:
