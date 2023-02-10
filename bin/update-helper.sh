@@ -239,8 +239,19 @@ then
   echo -e "$updated_packages\n"
 fi
 
-header2 "Not Updated Packages (Direct)"
-composer show --locked --outdated --direct
+if [ "$update_mode" = "security" ] ; then
+  header2 "Not Updated Securities (packagist)"
+  composer audit --locked $update_no_dev --format plain 2>&1 | grep ^Package | cut -f2 -d: | sort -u
 
-header2 "Not Updated Packages (ALL)"
-composer show --locked --outdated
+  header2 "Not Updated Securities (drupal)"
+  set +e
+  ./vendor/bin/drush pm:security --fields=name --format=list 2>/dev/null
+  set -e
+
+else
+  header2 "Not Updated Packages (Direct)"
+  composer show --locked --outdated --direct
+
+  header2 "Not Updated Packages (ALL)"
+  composer show --locked --outdated
+fi
