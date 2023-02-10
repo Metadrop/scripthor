@@ -213,7 +213,11 @@ else
 fi
 
 packages_to_update=${packages_to_update// /}
+
+# Silent errors because when there aren't packages grep returns exit code 1.
+set +e
 packages_to_update=$(echo "$packages_to_update" | grep -E -i "^([A-Z0-9_-]*\/[A-Z0-9_-]*)")
+set -e
 
 echo "$packages_to_update"
 printf '\n'
