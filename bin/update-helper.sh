@@ -59,7 +59,7 @@ function composer_update_outdated() {
       fi
       set -e
 
-      git_has_changes="$(git status --porcelain | wc -l)"
+      git_has_changes="$(git status --porcelain composer.lock | wc -l)"
       if [ "$git_has_changes" -eq 0 ]; then
         continue
       fi
