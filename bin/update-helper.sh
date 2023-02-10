@@ -96,7 +96,7 @@ function composer_update_outdated() {
 
       if [ "$package_version_from" != "$package_version_to" ]
       then
-        updated_packages="$c from $package_version_from to $package_version_to\n$updated_packages"
+        updated_packages="$package from $package_version_from to $package_version_to\n$updated_packages"
       fi
 
     done
