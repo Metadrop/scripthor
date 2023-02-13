@@ -231,7 +231,7 @@ class Handler {
   protected function installDrupal($project_name) {
     if ($this->io->askConfirmation('Do you want to install Drupal? (Y/n) ')) {
       // Wait 10 seconds to prevent the database to not be present.
-      $this->io->write("Waiting for database to be ready:\n");
+      $this->io->write("Waiting for database to be ready:");
       sleep(10);
       copy('./web/sites/default/example.settings.local.php', './web/sites/default/settings.local.php');
       $drush_yml = file_get_contents('./web/sites/default/example.local.drush.yml');
