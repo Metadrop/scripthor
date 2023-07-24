@@ -27,6 +27,7 @@ class Handler {
   const SIMLINK_FILES = [
     'frontend-build.sh',
     'copy-content-config-entity-to-module.sh',
+    'generate-artifact.sh',
     'reload-local.sh',
     'setup-traefik-port.sh',
     'backup.sh',
