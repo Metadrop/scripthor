@@ -173,9 +173,9 @@ class Handler {
     file_put_contents('./behat.yml', $behat_yml);
 
     $this->io->write('Setting up BackstopJS\' cookies.json file');
-    $backstop = file_get_contents('./tests/backstopjs/backstop_data/engine_scripts/cookies.json');
+    $backstop = file_get_contents('./tests/functional/backstopjs/backstop_data/engine_scripts/cookies.json');
     $backstop = str_replace('example', $project_name, $backstop);
-    file_put_contents('./tests/backstopjs/backstop_data/engine_scripts/cookies.json', $backstop);
+    file_put_contents('./tests/functional/backstopjs/backstop_data/engine_scripts/cookies.json', $backstop);
 
     $this->io->write('Setting up docker-compose.override.yml');
     copy('./docker-compose.override.yml.dist', './docker-compose.override.yml');
@@ -275,5 +275,4 @@ class Handler {
     system('docker-compose exec php drush uli');
     $this->io->write("\n");
   }
-
 }
